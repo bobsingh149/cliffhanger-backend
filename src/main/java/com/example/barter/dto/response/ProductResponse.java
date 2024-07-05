@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public final class ProductDto {
+public final class ProductResponse {
     private final String id;
     private final long isbn;
     private UUID userId;
@@ -27,9 +27,9 @@ public final class ProductDto {
     private final LocalDateTime createdAt;
 
 
-    public static ProductDto fromProductEntity(ProductEntity productEntity)
+    public static ProductResponse fromProductEntity(ProductEntity productEntity)
     {
-        return ProductDto.builder()
+        return ProductResponse.builder()
                 .id(productEntity.getId())
                 .isbn(productEntity.getIsbn())
                 .userId(productEntity.getUserId())

@@ -9,7 +9,8 @@ import java.util.UUID;
 @Builder
 public class SaveUserInput {
 
-    private UUID id;
+
+    private String id;
    private String name;
    private String email;
    private String profileImage;

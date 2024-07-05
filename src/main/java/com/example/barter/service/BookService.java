@@ -3,7 +3,7 @@ package com.example.barter.service;
 import com.example.barter.config.BooksApiProperties;
 import com.example.barter.dto.api.BookshelfResponse;
 import com.example.barter.dto.input.SaveProductInput;
-import com.example.barter.dto.response.ProductDto;
+import com.example.barter.dto.response.ProductResponse;
 import com.example.barter.dto.entity.ProductEntity;
 import com.example.barter.repository.ProductRepository;
 import com.example.barter.utils.CommonUtils;
@@ -36,22 +36,22 @@ public class BookService implements ProductService {
     }
 
 
-    public Flux<ProductDto> getAllByPageable(Pageable pageable) {
+    public Flux<ProductResponse> getAllByPageable(Pageable pageable) {
         try {
 
-            return productRepository.getAllByPageable(pageable.getOffset(), pageable.getPageSize()).map(ProductDto::fromProductEntity);
+            return productRepository.getAllByPageable(pageable.getOffset(), pageable.getPageSize()).map(ProductResponse::fromProductEntity);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
 
-    public Flux<ProductDto> getByUserId(UUID userId) {
-        return productRepository.getByUserId(userId).map(ProductDto::fromProductEntity);
+    public Flux<ProductResponse> getByUserId(UUID userId) {
+        return productRepository.getByUserId(userId).map(ProductResponse::fromProductEntity);
     }
 
-    public Mono<ProductDto> getById(String id) {
-        return productRepository.findById(id).map(ProductDto::fromProductEntity);
+    public Mono<ProductResponse> getById(String id) {
+        return productRepository.findById(id).map(ProductResponse::fromProductEntity);
     }
 
     public Mono<Void> deleteById(String id) {
