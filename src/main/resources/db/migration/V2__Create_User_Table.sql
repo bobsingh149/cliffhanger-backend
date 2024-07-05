@@ -4,6 +4,6 @@ CREATE TABLE users
     name varchar not null,
     age int,
     products jsonb,
-    profile varchar,
+    profileimage varchar,
     connections jsonb
 );
