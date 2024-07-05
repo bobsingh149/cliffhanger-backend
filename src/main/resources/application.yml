@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: barter
+  profiles:
+    active: bookprofile
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres
+    user: postgres.crnvwifpkixtlzlcydye
+    password: NBl9smbaCqHSrKai
+  r2dbc:
+    url: r2dbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres
+    username: postgres.crnvwifpkixtlzlcydye
+    password: NBl9smbaCqHSrKai
+
+openlibraryapi:
+  baseurl: https://openlibrary.org
+  isbnEndpoint: https://openlibrary.org/api/books
+  bookshelfEndpoint: https://openlibrary.org/works/{id}/bookshelves.json
+  timeout: 5000
+
+  query:
+    jscmd: details
+    format: json
+
+
+#logging:
+#  level:
+#    io.r2dbc.postgresql: DEBUG
+
+
+
+

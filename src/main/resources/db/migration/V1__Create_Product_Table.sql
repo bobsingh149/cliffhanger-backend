@@ -1,9 +1,16 @@
-CREATE TABLE prodcut
+CREATE TABLE product
 (
-    id UUID primary key,
-    owner_id UUID not null,
-    name varchar(255) not null,
+    id varchar PRIMARY KEY,
+    isbn bigint not null,
+    userId UUID not null,
+    works jsonb,
+    title varchar(255) not null,
+    authors jsonb not null,
     description varchar,
-    category varchar(255) not null ,
-    image varchar
+    image varchar,
+    subjects jsonb,
+    score bigint not null,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
 );
+
+
