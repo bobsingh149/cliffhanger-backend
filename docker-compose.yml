@@ -1,0 +1,17 @@
+version: '3.8'  # Specify the Docker Compose version
+
+services:
+  postgres:
+    image: postgres:latest  # Use the latest PostgreSQL image
+    container_name: barter_container  # Name the container
+    environment:
+      POSTGRES_USER: barter  # Replace with your desired username
+      POSTGRES_PASSWORD: barter  # Replace with your desired password
+      POSTGRES_DB: barter  # Replace with your desired database name
+    ports:
+      - "5432:5432"  # Expose port 5432 to the host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist data
+
+volumes:
+  postgres_data:
