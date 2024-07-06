@@ -95,6 +95,12 @@ public class ProductEntity {
 
         }
 
+
+        if(booksApiResponseList.isEmpty())
+        {
+            throw  new InvalidIsbnException("Invalid isbn number");
+        }
+
       final  BooksApiResponse booksApiResponse = booksApiResponseList.get(0);
        final String isbn =isbnList.get(0);
 
