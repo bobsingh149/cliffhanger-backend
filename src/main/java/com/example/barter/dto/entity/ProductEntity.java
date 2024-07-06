@@ -52,7 +52,7 @@ public class ProductEntity {
 
     @NonNull
     private long score;
-//
+
     @Column("createdat")
     private LocalDateTime createdAt;
 

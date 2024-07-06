@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api")
 public class UserController {
 
     final UserService userService;
@@ -31,7 +31,6 @@ public class UserController {
     @PostMapping("/user/save")
     public ResponseEntity<Mono<ApiResponse<Object>>> save(@RequestBody SaveUserInput saveUserInput) {
         final var response = userService.save(saveUserInput);
-
         return ControllerUtils.mapMonoToResponseEntitiy(response,  ResponseMessage.success, HttpStatus.CREATED);
     }
 
@@ -43,7 +42,7 @@ public class UserController {
     }
 
 
-    @PatchMapping("/user/updateById/{id}")
+    @PutMapping("/user/updateById")
     public ResponseEntity<Flux<ApiResponse<Object>>> patch(@RequestBody SaveUserInput saveUserInput) {
 
             final var response = userService.update(saveUserInput);

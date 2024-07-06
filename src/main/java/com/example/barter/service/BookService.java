@@ -6,7 +6,6 @@ import com.example.barter.dto.input.SaveProductInput;
 import com.example.barter.dto.response.ProductResponse;
 import com.example.barter.dto.entity.ProductEntity;
 import com.example.barter.repository.ProductRepository;
-import com.example.barter.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
@@ -104,7 +103,7 @@ public class BookService implements ProductService {
                         bookshelfResponse -> {
                             productEntity.setScore(getRanking(bookshelfResponse.getCounts()));
 
-                            return productRepository.save(productEntity.getId(), productEntity.getIsbn(), productEntity.getUserId(), CommonUtils.convertToJson(productEntity.getWorks()),productEntity.getTitle(), CommonUtils.convertToJson(productEntity.getAuthors()), productEntity.getDescription(), productEntity.getImage(), CommonUtils.convertToJson(productEntity.getSubjects()), productEntity.getScore());
+                            return productRepository.save(productEntity.getId(), productEntity.getIsbn(), productEntity.getUserId(),productEntity.getWorks(),productEntity.getTitle(), productEntity.getAuthors(), productEntity.getDescription(), productEntity.getImage(), productEntity.getSubjects(), productEntity.getScore());
 
                                 }
                 );

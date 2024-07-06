@@ -10,11 +10,10 @@ import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Data
+@Table("users")
 @Builder
-@Table("user")
 public class UserEntity {
 
     @Id
@@ -47,14 +46,3 @@ public class UserEntity {
     }
 
 }
-
-
-//CREATE TABLE user
-//        (
-//                id UUID primary key,
-//                name varchar not null,
-//                age int,
-//                products jsonb,
-//                profile varchar,
-//                connections jsonb
-//        );

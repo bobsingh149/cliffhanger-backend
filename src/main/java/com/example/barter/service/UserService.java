@@ -21,10 +21,11 @@ public class UserService {
     }
 
 
-    public Mono<UserResponse> save(SaveUserInput saveUserInput)
+    public Mono<Void> save(SaveUserInput saveUserInput)
     {
-      return   userRepository.save(UserEntity.fromSaveUserInput(saveUserInput))
-                .map(UserResponse::fromUserEntity);
+        final var userEntity = UserEntity.fromSaveUserInput(saveUserInput);
+
+      return   userRepository.save(userEntity.getId(), userEntity.getName(), userEntity.getAge(), userEntity.getProducts(),userEntity.getProfileImage(),userEntity.getConnections());
     }
 
 
