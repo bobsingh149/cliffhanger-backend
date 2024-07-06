@@ -10,6 +10,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Table("users")
@@ -17,7 +18,7 @@ import java.util.List;
 public class UserEntity {
 
     @Id
-    String id;
+    UUID id;
 
     @NonNull
     String name;

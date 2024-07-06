@@ -277,6 +277,35 @@
           }
         }
       }
+    },
+    "/product/findByIsbn": {
+      "post": {
+        "tags": ["product"],
+        "summary": "Find product by ISBN",
+        "operationId": "findByIsbn",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveProductInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -378,7 +407,6 @@
           "name": {
             "type": "string"
           },
-
           "profileImage": {
             "type": "string"
           },

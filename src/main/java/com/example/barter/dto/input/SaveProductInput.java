@@ -10,7 +10,7 @@ import java.util.UUID;
 @Builder
 public class SaveProductInput {
 
-    private String isbn;
+    private long isbn;
     private UUID userId;
 }
 

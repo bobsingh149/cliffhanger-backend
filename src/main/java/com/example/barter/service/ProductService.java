@@ -20,7 +20,9 @@ public interface ProductService {
 
      Mono<Void> deleteById(String id);
 
-
-
+     Mono<ProductResponse> findByIsbn(SaveProductInput saveProductInput);
 }
+
+
+
 
