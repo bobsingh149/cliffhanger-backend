@@ -1,6 +1,6 @@
 CREATE TABLE users
 (
-    id varchar primary key,
+    id UUID primary key,
     name varchar not null,
     age int,
     products jsonb,

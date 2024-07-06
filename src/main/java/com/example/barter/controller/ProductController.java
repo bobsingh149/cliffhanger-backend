@@ -62,5 +62,13 @@ public class ProductController {
         return ControllerUtils.mapMonoToResponseEntitiy(response, ResponseMessage.success,HttpStatus.CREATED);
     }
 
+    @PostMapping(path = "/findByIsbn")
+    public ResponseEntity<Mono<ApiResponse<Object>>> findByIsbn(@RequestBody SaveProductInput saveProductInput)
+    {
+        final var response = productService.findByIsbn(saveProductInput);
+
+        return ControllerUtils.mapMonoToResponseEntitiy(response,ResponseMessage.success,HttpStatus.OK);
+    }
+
 
 }

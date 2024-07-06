@@ -58,11 +58,13 @@ public class BookService implements ProductService {
     }
 
 
-    public String getIsbnUri(SaveProductInput saveProductInput) {
+    public String getIsbnUri(long isbn) {
+
+
         return UriComponentsBuilder.
                 fromUriString(booksApiProperties.getIsbnEndpoint())
 
-                .queryParam("bibkeys", "ISBN:" + saveProductInput.getIsbn())
+                .queryParam("bibkeys", "ISBN:" + isbn)
                 .queryParam("jscmd", booksApiProperties.getQuery().getJscmd())
 
                 .queryParam("format", booksApiProperties.getQuery().getFormat())
@@ -102,9 +104,7 @@ public class BookService implements ProductService {
                 .flatMap(
                         bookshelfResponse -> {
                             productEntity.setScore(getRanking(bookshelfResponse.getCounts()));
-
                             return productRepository.save(productEntity.getId(), productEntity.getIsbn(), productEntity.getUserId(),productEntity.getWorks(),productEntity.getTitle(), productEntity.getAuthors(), productEntity.getDescription(), productEntity.getImage(), productEntity.getSubjects(), productEntity.getScore());
-
                                 }
                 );
 
@@ -113,7 +113,7 @@ public class BookService implements ProductService {
 
     public Mono<Void> save(SaveProductInput saveProductInput) {
 
-        String isbnUri = getIsbnUri(saveProductInput);
+        String isbnUri = getIsbnUri(saveProductInput.getIsbn());
 
         final var booksApiResponse = webClient.get().
                 uri(isbnUri).
@@ -122,6 +122,19 @@ public class BookService implements ProductService {
         return booksApiResponse
                 .map(jsonStr -> ProductEntity.fromJson(jsonStr, saveProductInput))
                 .flatMap(this::setRankingAndSave);
+
+    }
+
+    public Mono<ProductResponse> findByIsbn(SaveProductInput saveProductInput) {
+
+        String isbnUri = getIsbnUri(saveProductInput.getIsbn());
+
+        final var booksApiResponse = webClient.get().
+                uri(isbnUri).
+                retrieve().bodyToMono(String.class);
+
+        return booksApiResponse.map(jsonStr -> ProductEntity.fromJson(jsonStr,saveProductInput))
+                .map(ProductResponse::fromProductEntity);
 
     }
 
