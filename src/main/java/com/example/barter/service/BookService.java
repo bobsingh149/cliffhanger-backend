@@ -115,11 +115,9 @@ public class BookService implements ProductService {
 
         String isbnUri = getIsbnUri(saveProductInput);
 
-
         final var booksApiResponse = webClient.get().
                 uri(isbnUri).
                 retrieve().bodyToMono(String.class);
-
 
         return booksApiResponse
                 .map(jsonStr -> ProductEntity.fromJson(jsonStr, saveProductInput))
