@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -104,7 +105,7 @@ public class BookService implements ProductService {
                 .flatMap(
                         bookshelfResponse -> {
                             productEntity.setScore(getRanking(bookshelfResponse.getCounts()));
-                            return productRepository.save(productEntity.getId(), productEntity.getIsbn(), productEntity.getUserId(),productEntity.getWorks(),productEntity.getTitle(), productEntity.getAuthors(), productEntity.getDescription(), productEntity.getImage(), productEntity.getSubjects(), productEntity.getScore());
+                            return productRepository.save(productEntity.getId(), productEntity.getIsbn(), productEntity.getUserId(),productEntity.getWorks(),productEntity.getTitle(),  productEntity.getAuthors(), productEntity.getDescription(), productEntity.getImage(), productEntity.getSubjects(), productEntity.getScore());
                                 }
                 );
 
@@ -137,6 +138,19 @@ public class BookService implements ProductService {
                 .map(ProductResponse::fromProductEntity);
 
     }
+
+ public  Flux<ProductResponse> getByQuery(String q)
+ {
+     q =  q + "%";
+     return productRepository.getByQuery(q).map(ProductResponse::fromProductEntity);
+ }
+
+
+   public Flux<ProductResponse> getByFilter(String subject)
+   {
+
+       return productRepository.getByFilter(subject).map(ProductResponse::fromProductEntity);
+   }
 
 
 }

@@ -20,8 +20,8 @@ public final class ProductResponse {
     private UUID userId;
     private final String title;
     private final String description;
-    private final List<Map<String,String>> authors;
-    private final  List<String>  subjects;
+    private final String[] authors;
+    private final  String[]  subjects;
     private final String image;
     private final long score;
     private final LocalDateTime createdAt;

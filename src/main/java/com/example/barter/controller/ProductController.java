@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -34,6 +35,21 @@ public class ProductController {
          final var response= productService.getAllByPageable(PageRequest.of(page, size));
          return ControllerUtils.mapFLuxToResponseEntitiy(response, ResponseMessage.success,HttpStatus.OK);
     }
+
+    @GetMapping(path ="/getProductsByQuery")
+    public ResponseEntity<Flux<ApiResponse<Object>>>  getByQuery(@RequestParam String q)
+    {
+      final var response =   productService.getByQuery(q);
+      return ControllerUtils.mapFLuxToResponseEntitiy(response,ResponseMessage.success,HttpStatus.OK);
+    }
+
+    @GetMapping(path ="/getProductsByFilter")
+    public ResponseEntity<Flux<ApiResponse<Object>>>  getByFilter(@RequestParam String subject)
+    {
+        final var response =   productService.getByFilter(subject);
+        return ControllerUtils.mapFLuxToResponseEntitiy(response,ResponseMessage.success,HttpStatus.OK);
+    }
+
 
     @GetMapping(path ="/getProductById/{id}")
     public ResponseEntity<Mono<ApiResponse<Object>>>  getById(@PathVariable String id)
@@ -69,6 +85,5 @@ public class ProductController {
 
         return ControllerUtils.mapMonoToResponseEntitiy(response,ResponseMessage.success,HttpStatus.OK);
     }
-
 
 }

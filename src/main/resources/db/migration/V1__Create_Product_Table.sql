@@ -5,10 +5,10 @@ CREATE TABLE product
     userId UUID not null,
     works jsonb,
     title varchar(255) not null,
-    authors jsonb not null,
+    authors TEXT[] not null,
     description varchar,
     image varchar,
-    subjects jsonb,
+    subjects TEXT[],
     score bigint not null,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
 );

@@ -13,8 +13,8 @@ public class BooksApiProperties {
     private String baseurl;
     private String isbnEndpoint;
     private String bookshelfEndpoint;
-    private  String timeout;
-    private  Query query;
+    private String timeout;
+    private Query query;
 
     @Data
     public static class Query
