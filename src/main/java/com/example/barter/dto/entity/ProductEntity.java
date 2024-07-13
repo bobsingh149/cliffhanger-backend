@@ -44,10 +44,10 @@ public class ProductEntity {
     private String title;
 
     @NonNull
-    private List<Map<String,String>> authors;
+    private String[] authors;
 
     private String description;
-    private List<String> subjects;
+    private String[] subjects;
     private String image;
 
     @NonNull
@@ -104,20 +104,18 @@ public class ProductEntity {
       final  BooksApiResponse booksApiResponse = booksApiResponseList.get(0);
        final String isbn =isbnList.get(0);
 
+
         return ProductEntity.builder().id(isbn + "_" + saveProductInput.getUserId().toString())
                 .isbn(Long.parseLong(isbn))
                 .image(booksApiResponse.getThumbnail_url())
                 .score(0)
                 .title(booksApiResponse.getDetails().getTitle())
-                .authors(booksApiResponse.getDetails().getAuthors())
+                .authors(CommonUtils.toArray(booksApiResponse.getDetails().getAuthors().stream().map(author_map -> author_map.get("name"))))
                 .description(booksApiResponse.getDetails().getDescription())
-                .subjects(booksApiResponse.getDetails().getSubjects())
+                .subjects(CommonUtils.toArray(booksApiResponse.getDetails().getSubjects()))
                 .userId(saveProductInput.getUserId())
                 .works(booksApiResponse.getDetails().getWorks())
                 .build();
-
-
-
 
     }
 

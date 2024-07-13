@@ -306,6 +306,39 @@
           }
         }
       }
+    },
+    "/product/getProductsByQuery": {
+      "get": {
+        "tags": ["product"],
+        "summary": "Get products by query parameters",
+        "operationId": "getProductsByQuery",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of products matching the query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductSchema"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
