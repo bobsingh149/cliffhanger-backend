@@ -7,7 +7,6 @@ import com.example.barter.exception.customexception.InvalidIsbnException;
 import com.example.barter.utils.CommonUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.json.JSONObject;
@@ -29,32 +28,32 @@ import java.util.UUID;
 public class ProductEntity {
 
     @Id
-    private String id;
+    private final String id;
 
     @NonNull
-    private long isbn;
+    private final long isbn;
 
     @NonNull
     @Column("userid")
-    private UUID userId;
+    private final UUID userId;
 
-    private List<Map<String,String>>  works;
-
-    @NonNull
-    private String title;
+    private final List<Map<String,String>>  works;
 
     @NonNull
-    private String[] authors;
-
-    private String description;
-    private String[] subjects;
-    private String image;
+    private final String title;
 
     @NonNull
-    private long score;
+    private final String[] authors;
+
+    private final String description;
+    private final String[] subjects;
+    private final String image;
+
+    @NonNull
+    private  long score;
 
     @Column("createdat")
-    private LocalDateTime createdAt;
+    private final LocalDateTime createdAt;
 
 
 
@@ -105,7 +104,7 @@ public class ProductEntity {
        final String isbn =isbnList.get(0);
 
 
-        return ProductEntity.builder().id(isbn + "_" + saveProductInput.getUserId().toString())
+        return ProductEntity.builder().id(isbn + "_" + saveProductInput.userId().toString())
                 .isbn(Long.parseLong(isbn))
                 .image(booksApiResponse.getThumbnail_url())
                 .score(0)
@@ -113,7 +112,7 @@ public class ProductEntity {
                 .authors(CommonUtils.toArray(booksApiResponse.getDetails().getAuthors().stream().map(author_map -> author_map.get("name"))))
                 .description(booksApiResponse.getDetails().getDescription())
                 .subjects(CommonUtils.toArray(booksApiResponse.getDetails().getSubjects()))
-                .userId(saveProductInput.getUserId())
+                .userId(saveProductInput.userId())
                 .works(booksApiResponse.getDetails().getWorks())
                 .build();
 

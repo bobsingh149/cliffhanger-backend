@@ -3,7 +3,8 @@ CREATE TABLE users
     id UUID primary key,
     name varchar not null,
     age int,
-    products jsonb,
+    products TEXT[] default '{}',
     profileimage varchar,
-    connections jsonb
+    connections UUID[] default '{}',
+    requests UUID[] default '{}'
 );

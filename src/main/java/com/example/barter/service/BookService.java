@@ -114,7 +114,7 @@ public class BookService implements ProductService {
 
     public Mono<Void> save(SaveProductInput saveProductInput) {
 
-        String isbnUri = getIsbnUri(saveProductInput.getIsbn());
+        String isbnUri = getIsbnUri(saveProductInput.isbn());
 
         final var booksApiResponse = webClient.get().
                 uri(isbnUri).
@@ -128,7 +128,7 @@ public class BookService implements ProductService {
 
     public Mono<ProductResponse> findByIsbn(SaveProductInput saveProductInput) {
 
-        String isbnUri = getIsbnUri(saveProductInput.getIsbn());
+        String isbnUri = getIsbnUri(saveProductInput.isbn());
 
         final var booksApiResponse = webClient.get().
                 uri(isbnUri).

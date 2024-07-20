@@ -1,6 +1,8 @@
 package com.example.barter.service;
 
 import com.example.barter.dto.entity.UserEntity;
+import com.example.barter.dto.input.SaveConnectionInput;
+import com.example.barter.dto.input.SaveRequestInput;
 import com.example.barter.dto.input.SaveUserInput;
 import com.example.barter.dto.response.UserResponse;
 import com.example.barter.repository.UserRepository;
@@ -8,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -21,29 +25,60 @@ public class UserService {
     }
 
 
-    public Mono<Void> save(SaveUserInput saveUserInput)
+    public Mono<Void> saveUser(SaveUserInput saveUserInput)
     {
         final var userEntity = UserEntity.fromSaveUserInput(saveUserInput);
 
-      return   userRepository.save(userEntity.getId(), userEntity.getName(), userEntity.getAge(), userEntity.getProducts(),userEntity.getProfileImage(),userEntity.getConnections());
+      return   userRepository.saveUser(userEntity.getId(), userEntity.getName(), userEntity.getAge(), userEntity.getProducts(),userEntity.getProfileImage(),userEntity.getConnections());
     }
 
 
-    public Mono<UserResponse> get(String id)
+    public Mono<UserResponse> getUser(UUID id)
     {
-         return    userRepository.findById(id)
+         return userRepository.findById(id)
                     .map(UserResponse::fromUserEntity);
     }
 
 
-    public Flux<UserResponse> update(SaveUserInput saveUserInput)
+    public Mono<UserResponse> updateUser(SaveUserInput saveUserInput)
     {
-        return userRepository.update(saveUserInput.getId(),saveUserInput.getName(),saveUserInput.getAge(),saveUserInput.getProfileImage())
+        return userRepository.updateUser(saveUserInput.id(),saveUserInput.name(),saveUserInput.age(),saveUserInput.profileImage())
                 .map(UserResponse::fromUserEntity);
     }
 
-    public Mono<Void> delete(String id)
+    public Mono<Void> deleteUser(UUID id)
     {
         return userRepository.deleteById(id);
+    }
+
+    public Mono<Void> saveConnection(SaveConnectionInput saveConnectionInput)
+    {
+        return userRepository.saveConnection(saveConnectionInput.id(), saveConnectionInput.connectionId());
+    }
+
+
+    public Flux<UserResponse> getConnections(UUID id)
+    {
+        return userRepository.getConnections(id).map(UserResponse::fromUserEntity);
+    }
+
+
+
+    public Mono<Void> saveRequest(SaveRequestInput saveRequestInput)
+    {
+        return userRepository.saveRequest(saveRequestInput.id(), saveRequestInput.requestId());
+    }
+
+
+    public Flux<UserResponse> getRequests(UUID id)
+    {
+        return userRepository.getRequests(id).map(UserResponse::fromUserEntity);
+    }
+
+
+
+    public Flux<UserResponse> getCommonUsers(UUID id)
+    {
+        return userRepository.getCommonUsers(id).map(UserResponse::fromUserEntity);
     }
 }
