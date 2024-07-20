@@ -15,6 +15,7 @@ import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
 import org.springframework.data.r2dbc.dialect.PostgresDialect;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,9 @@ public class ConvertorConfig {
         converters.add(new ListOfMapToJsonConverter(objectMapper));
         converters.add(new JsonToListOfStringConverter(objectMapper));
         converters.add(new ListOfStringToJsonConverter(objectMapper));
+        converters.add(new JsonToMapConverter(objectMapper));
+        converters.add(new MapToJsonConverter(objectMapper));
+
         return R2dbcCustomConversions.of(PostgresDialect.INSTANCE, converters);
     }
 
@@ -113,6 +117,49 @@ public class ConvertorConfig {
 
         @Override
         public Json convert(List<String> source) {
+            try {
+                return Json.of(objectMapper.writeValueAsString(source));
+            } catch (JsonProcessingException e) {
+                log.error("Error occurred while serializing map to JSON: {}", source, e);
+            }
+            return Json.of("");
+        }
+    }
+
+
+    @ReadingConverter
+    static class JsonToMapConverter implements Converter<Json,Map<String,Object>> {
+
+        private final ObjectMapper objectMapper;
+
+        public JsonToMapConverter(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
+        @Override
+        public Map<String,Object> convert(Json json) {
+            try {
+                return objectMapper.readValue(json.asString(), new TypeReference<>() {
+                });
+            } catch (JsonProcessingException e) {
+                log.error("Problem while parsing JSON: {}", json, e);
+            }
+
+            return Map.of();
+        }
+    }
+
+    @WritingConverter
+    static class MapToJsonConverter implements Converter<Map<String,Object>, Json> {
+
+        private final ObjectMapper objectMapper;
+
+        public MapToJsonConverter(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
+        @Override
+        public Json convert(Map<String,Object> source) {
             try {
                 return Json.of(objectMapper.writeValueAsString(source));
             } catch (JsonProcessingException e) {

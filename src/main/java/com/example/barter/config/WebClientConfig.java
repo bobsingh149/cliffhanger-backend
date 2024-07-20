@@ -10,7 +10,6 @@ public class WebClientConfig {
     @Bean
     public WebClient getWebClient()
     {
-        final BooksApiProperties booksApiProperties = new BooksApiProperties();
         return WebClient.builder().build();
     }
 

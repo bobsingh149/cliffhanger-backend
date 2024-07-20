@@ -8,8 +8,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -18,30 +16,33 @@ import java.util.UUID;
 public class UserEntity {
 
     @Id
-    UUID id;
+  private final UUID id;
 
     @NonNull
-    String name;
+  private final String name;
 
-    int age;
+   private final int age;
 
-    List<String> products;
+  private final   String[] products;
 
     @Column("profileimage")
-    String profileImage;
+private final String profileImage;
 
-    List<String> connections;
+  private final UUID[] connections;
 
 
     public static UserEntity fromSaveUserInput(final SaveUserInput saveUserInput)
     {
+        final String[] products = {};
+        final UUID[] connections = {};
+
         return UserEntity.builder()
-                .id(saveUserInput.getId())
-                .name(saveUserInput.getName())
-                .age(saveUserInput.getAge())
-                .products(new ArrayList<>())
-                .profileImage(saveUserInput.getProfileImage())
-                .connections(new ArrayList<>())
+                .id(saveUserInput.id())
+                .name(saveUserInput.name())
+                .age(saveUserInput.age())
+                .profileImage(saveUserInput.profileImage())
+                .products(products)
+                .connections(connections)
                 .build();
 
     }

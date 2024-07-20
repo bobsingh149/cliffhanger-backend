@@ -14,9 +14,9 @@ public class UserResponse {
     UUID id;
     String name;
     int age;
-    List<String> products;
+    String[] products;
     String profileImage;
-    List<String> connections;
+    UUID[] connections;
 
 
     public static UserResponse fromUserEntity(UserEntity userEntity)
@@ -33,21 +33,3 @@ public class UserResponse {
     }
 
 }
-
-/**
- *
- @Id
- String id;
-
- @NonNull
- String name;
-
- int age;
-
- List<String> products;
-
- String profile;
-
- List<String> connections;
-
- */

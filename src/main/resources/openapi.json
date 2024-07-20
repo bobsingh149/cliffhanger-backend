@@ -3,7 +3,7 @@
   "info": {
     "title": "Product API",
     "version": "1.0.0",
-    "description": "API for managing products and users in the barter system"
+    "description": "API for managing products, users, and chat in the barter system"
   },
   "servers": [
     {
@@ -42,6 +42,80 @@
         "responses": {
           "200": {
             "description": "A list of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductSchema"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product/getProductsByQuery": {
+      "get": {
+        "tags": ["product"],
+        "summary": "Get products by query",
+        "operationId": "getProductsByQuery",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of products matching the query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductSchema"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product/getProductsByFilter": {
+      "get": {
+        "tags": ["product"],
+        "summary": "Get products by filter",
+        "operationId": "getProductsByFilter",
+        "parameters": [
+          {
+            "name": "subject",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of products matching the filter",
             "content": {
               "application/json": {
                 "schema": {
@@ -102,7 +176,7 @@
           }
         ],
         "responses": {
-          "302": {
+          "200": {
             "description": "A list of products",
             "content": {
               "application/json": {
@@ -162,7 +236,36 @@
         }
       }
     },
-    "/user/save": {
+    "/product/findByIsbn": {
+      "post": {
+        "tags": ["product"],
+        "summary": "Find product by ISBN",
+        "operationId": "findByIsbn",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveProductInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/saveUser": {
       "post": {
         "tags": ["user"],
         "summary": "Save a new user",
@@ -191,7 +294,167 @@
         }
       }
     },
-    "/user/getById/{id}": {
+    "/user/saveConnection": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Save a new connection",
+        "operationId": "saveConnection",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveConnectionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Connection created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/user/saveRequest": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Save a new connection Request",
+        "operationId": "saveRequest",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveRequestInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Connection created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+
+    "/user/getConnections/{id}": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get connections by user ID",
+        "operationId": "getConnections",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of connections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/getCommonUsers/{id}": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get common users by user ID",
+        "operationId": "getCommonUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of common users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/getRequests/{id}": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get requests by user ID",
+        "operationId": "getRequests",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/getUserById/{id}": {
       "get": {
         "tags": ["user"],
         "summary": "Get user by ID",
@@ -202,7 +465,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -220,11 +484,11 @@
         }
       }
     },
-    "/user/updateById": {
+    "/user/updateUser": {
       "put": {
         "tags": ["user"],
-        "summary": "Update user by ID",
-        "operationId": "updateUserById",
+        "summary": "Update user",
+        "operationId": "updateUser",
         "requestBody": {
           "required": true,
           "content": {
@@ -249,7 +513,7 @@
         }
       }
     },
-    "/user/deleteById/{id}": {
+    "/user/deleteUserById/{id}": {
       "delete": {
         "tags": ["user"],
         "summary": "Delete user by ID",
@@ -260,7 +524,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -278,28 +543,38 @@
         }
       }
     },
-    "/product/findByIsbn": {
+    "/message/sendMessage/{id}": {
       "post": {
-        "tags": ["product"],
-        "summary": "Find product by ISBN",
-        "operationId": "findByIsbn",
+        "tags": ["chat"],
+        "summary": "Send a message",
+        "operationId": "sendMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SaveProductInput"
+                "$ref": "#/components/schemas/ChatInput"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Product found successfully",
+            "description": "Message sent successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
+                  "$ref": "#/components/schemas/ChatModel"
                 }
               }
             }
@@ -307,31 +582,31 @@
         }
       }
     },
-    "/product/getProductsByQuery": {
+    "/topic/{id}": {
       "get": {
-        "tags": ["product"],
-        "summary": "Get products by query parameters",
-        "operationId": "getProductsByQuery",
+        "tags": ["chat"],
+        "summary": "Get messages for a chat topic",
+        "operationId": "getMessages",
         "parameters": [
           {
-            "name": "q",
-            "in": "query",
-            "required": false,
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": ""
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "A list of products matching the query",
+            "description": "List of messages",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ProductSchema"
+                    "$ref": "#/components/schemas/ChatModel"
                   }
                 }
               }
@@ -447,6 +722,82 @@
             "type": "integer"
           }
         }
+      },
+      "SaveConnectionInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "connectionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+
+      "SaveRequestInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+
+      "ChatInput": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "isEdited": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ChatModel": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "isEdited": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   },
@@ -458,6 +809,10 @@
     {
       "name": "user",
       "description": "Operations related to users"
+    },
+    {
+      "name": "chat",
+      "description": "Operations related to chat messages"
     }
   ]
 }
