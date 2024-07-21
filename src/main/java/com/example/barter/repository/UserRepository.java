@@ -73,7 +73,7 @@ public interface UserRepository extends R2dbcRepository<UserEntity, UUID> {
             )
             select cp.*
             from common_products as cp
-            order by cp.common_count desc limit 1;
+            order by cp.common_count desc limit 10;
             """)
     Flux<UserEntity> getCommonUsers(UUID id);
 }

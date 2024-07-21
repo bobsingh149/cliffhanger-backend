@@ -52,8 +52,16 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
 
 
         @Query("""
+                with insert_product as
+                (
                 INSERT INTO product (id, isbn, userid,works,title,authors,description,image,subjects,score)
                 VALUES(:id, :isbn, :userId, :works ,:title,:authors, :description,:image, :subjects ,:score)
+                returning id
+                )
+                
+                update users set products = array_append(products, (select id from insert_product))
+                where id = :userId
+            
                 """)
         public Mono<Void> save(String id, long isbn, UUID userId, List<Map<String,String>> works, String title, String[] authors, String description, String image, String[] subjects, long score);
 
