@@ -33,6 +33,7 @@ public class ChatController {
     @MessageMapping("/sendMessage/{id}")
     @SendTo("/topic/{id}")
     public ChatModel sendMessage(@Payload ChatInput chatInput) {
+
         final ChatModel chatModel = ChatModel.builder().from(chatInput.from()).to(chatInput.to()).message(chatInput.message()).isRead(chatInput.isRead()).isEdited(chatInput.isEdited()).timestamp(LocalDateTime.now()).build();
 
         chatService.saveMessage(chatModel).subscribe(value -> {
