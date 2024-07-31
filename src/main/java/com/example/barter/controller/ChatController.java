@@ -3,18 +3,22 @@ package com.example.barter.controller;
 
 import com.example.barter.dto.input.ChatInput;
 import com.example.barter.dto.model.ChatModel;
+import com.example.barter.dto.response.ApiResponse;
 import com.example.barter.service.ChatService;
+import com.example.barter.utils.ControllerUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 
 @RestController
@@ -29,14 +33,13 @@ public class ChatController {
     }
 
 
-
-    @MessageMapping("/sendMessage/{id}")
+    @MessageMapping("/{id}")
     @SendTo("/topic/{id}")
-    public ChatModel sendMessage(@Payload ChatInput chatInput) {
+    public ChatModel sendMessage(@PathVariable String id, @Payload ChatInput chatInput) {
 
         final ChatModel chatModel = ChatModel.builder().from(chatInput.from()).to(chatInput.to()).message(chatInput.message()).isRead(chatInput.isRead()).isEdited(chatInput.isEdited()).timestamp(LocalDateTime.now()).build();
 
-        chatService.saveMessage(chatModel).subscribe(value -> {
+        chatService.saveMessage(id,chatModel).subscribe(value -> {
         }, error -> {
             log.error(String.valueOf(error));
         });
@@ -44,6 +47,13 @@ public class ChatController {
         return chatModel;
     }
 
+    @GetMapping("/api/loadMessages/{id}")
+    public ResponseEntity<Mono<ApiResponse<Object>>> loadMessages(@PathVariable String id) {
+
+            final var response = chatService.loadMessages(id);
+
+            return ControllerUtils.mapMonoToResponseEntity(response, ControllerUtils.ResponseMessage.success, HttpStatus.OK);
+    }
 
 
 

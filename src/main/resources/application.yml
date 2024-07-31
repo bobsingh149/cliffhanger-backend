@@ -24,9 +24,9 @@ openlibraryapi:
     format: json
 
 
-#logging:
-#  level:
-#    io.r2dbc.postgresql: DEBUG
+logging:
+  level:
+    io.r2dbc.postgresql: DEBUG
 
 
 

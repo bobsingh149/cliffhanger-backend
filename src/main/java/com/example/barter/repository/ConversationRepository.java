@@ -1,6 +1,7 @@
 package com.example.barter.repository;
 
 import com.example.barter.dto.entity.ConversationEntity;
+import com.example.barter.dto.model.ChatModel;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
@@ -15,5 +16,5 @@ public interface ConversationRepository extends R2dbcRepository<ConversationEnti
             on conflict(id)
             update conversation set chats = array_append(chats,:chat)
             """ )
-    Mono<Void> save(String id, Map<String, Object> chat);
+    Mono<Void> save(String id, ChatModel chat);
 }
