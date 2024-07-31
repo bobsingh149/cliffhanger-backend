@@ -1,5 +1,6 @@
 package com.example.barter.repository.custom_convertor;
 
+import com.example.barter.dto.model.ChatModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,8 +60,8 @@ public class ConvertorConfig {
                 });
             } catch (JsonProcessingException e) {
                 log.error("Problem while parsing JSON: {}", json, e);
+                throw  new RuntimeException(e.getMessage());
             }
-            return new ArrayList<>();
         }
     }
 
@@ -79,8 +80,9 @@ public class ConvertorConfig {
                 return Json.of(objectMapper.writeValueAsString(source));
             } catch (JsonProcessingException e) {
                 log.error("Error occurred while serializing map to JSON: {}", source, e);
+                throw  new RuntimeException(e.getMessage());
+
             }
-            return Json.of("");
         }
     }
 
@@ -101,8 +103,9 @@ public class ConvertorConfig {
                 });
             } catch (JsonProcessingException e) {
                 log.error("Problem while parsing JSON: {}", json, e);
+                throw  new RuntimeException(e.getMessage());
+
             }
-            return new ArrayList<>();
         }
     }
 
@@ -121,8 +124,9 @@ public class ConvertorConfig {
                 return Json.of(objectMapper.writeValueAsString(source));
             } catch (JsonProcessingException e) {
                 log.error("Error occurred while serializing map to JSON: {}", source, e);
+                throw  new RuntimeException(e.getMessage());
+
             }
-            return Json.of("");
         }
     }
 
@@ -143,9 +147,11 @@ public class ConvertorConfig {
                 });
             } catch (JsonProcessingException e) {
                 log.error("Problem while parsing JSON: {}", json, e);
+                throw  new RuntimeException(e.getMessage());
+
             }
 
-            return Map.of();
+
         }
     }
 
@@ -164,8 +170,48 @@ public class ConvertorConfig {
                 return Json.of(objectMapper.writeValueAsString(source));
             } catch (JsonProcessingException e) {
                 log.error("Error occurred while serializing map to JSON: {}", source, e);
+                throw  new RuntimeException(e.getMessage());
+
             }
-            return Json.of("");
+        }
+    }
+
+    @ReadingConverter
+    static class JsonToChatModelConverter implements Converter<Json, ChatModel> {
+
+        private final ObjectMapper objectMapper;
+
+        public JsonToChatModelConverter(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
+        @Override
+        public ChatModel convert(Json json) {
+
+            try {
+                return objectMapper.readValue(json.asString(),ChatModel.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+    }
+
+    @WritingConverter
+    static class ChatModelToJsonConvertor implements Converter<ChatModel, Json> {
+
+        private final ObjectMapper objectMapper;
+
+        public ChatModelToJsonConvertor(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
+        @Override
+        public Json convert(ChatModel source) {
+            try {
+                return Json.of(objectMapper.writeValueAsString(source));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

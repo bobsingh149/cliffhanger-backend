@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.UUID;
 
@@ -68,7 +70,8 @@ public class ProductController {
     public ResponseEntity<Flux<ApiResponse<Object>>>  getByUserId(@PathVariable UUID userId)
     {
         final var response= productService.getByUserId(userId);
-        return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success,HttpStatus.OK);
+
+    return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success,HttpStatus.OK);
     }
 
     @DeleteMapping(path ="/deleteProductById/{id}")
