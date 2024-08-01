@@ -1,5 +1,6 @@
 package com.example.barter.repository.custom_convertor;
 
+import com.example.barter.dto.entity.ConversationEntity;
 import com.example.barter.dto.model.ChatModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,7 +17,6 @@ import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
 import org.springframework.data.r2dbc.dialect.PostgresDialect;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +40,9 @@ public class ConvertorConfig {
         converters.add(new ListOfStringToJsonConverter(objectMapper));
         converters.add(new JsonToMapConverter(objectMapper));
         converters.add(new MapToJsonConverter(objectMapper));
+        converters.add(new JsonToChatModelConverter(objectMapper));
+        converters.add(new ChatModelToJsonConvertor(objectMapper));
+        converters.add(new JsonToChatWrapperConverter(objectMapper));
 
         return R2dbcCustomConversions.of(PostgresDialect.INSTANCE, converters);
     }
@@ -214,4 +217,30 @@ public class ConvertorConfig {
             }
         }
     }
+
+
+    @ReadingConverter
+    static class JsonToChatWrapperConverter implements Converter<Json, ConversationEntity.ChatWrapper> {
+
+        private final ObjectMapper objectMapper;
+
+        public JsonToChatWrapperConverter(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
+        @Override
+        public ConversationEntity.ChatWrapper convert(Json json) {
+
+            try {
+              final List<ChatModel> chats  = objectMapper.readValue(json.asString(),
+                      new TypeReference<List<ChatModel>>() {});
+
+              return ConversationEntity.ChatWrapper.builder().chats(chats).build();
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+    }
+
+
 }
