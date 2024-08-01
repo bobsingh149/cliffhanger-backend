@@ -4,9 +4,10 @@ import com.example.barter.dto.model.ChatModel;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Map;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,5 +17,11 @@ public class ConversationEntity {
     @Id
     private final String id;
 
-    private final ChatModel[] chats;
+    @Column("chats")
+    private final ChatWrapper chatWrapper;
+
+    @Builder
+    public static record ChatWrapper(List<ChatModel> chats)
+    {
+    }
 }
