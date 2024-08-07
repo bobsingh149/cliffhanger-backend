@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -17,12 +15,12 @@ import java.util.UUID;
 public final class ProductResponse {
     private final String id;
     private final long isbn;
-    private UUID userId;
+    private final UUID userId;
     private final String title;
     private final String description;
     private final String[] authors;
     private final  String[]  subjects;
-    private final String image;
+    private final String[] image;
     private final long score;
     private final LocalDateTime createdAt;
 

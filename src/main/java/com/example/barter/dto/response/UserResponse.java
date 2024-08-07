@@ -11,12 +11,12 @@ import java.util.UUID;
 @Builder
 public class UserResponse {
 
-    UUID id;
-    String name;
-    int age;
-    String[] products;
-    String profileImage;
-    UUID[] connections;
+   private final  UUID id;
+  private final   String name;
+  private final   int age;
+  private final   String[] products;
+  private final   String profileImage;
+  private final   UUID[] connections;
 
 
     public static UserResponse fromUserEntity(UserEntity userEntity)
