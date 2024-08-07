@@ -47,7 +47,7 @@ public class ProductEntity {
 
     private final String description;
     private final String[] subjects;
-    private final String image;
+    private final String[] image;
 
     @NonNull
     private  long score;
@@ -56,7 +56,13 @@ public class ProductEntity {
     private final LocalDateTime createdAt;
 
 
+    public static String[] getImages(String imageS)
+    {
+        String imageM = imageS.replace("S","M");
+        String imageL = imageS.replace("S","L");
 
+        return new String[]{imageS, imageM, imageL};
+    }
 
     public static ProductEntity fromJson(String jsonStr, SaveProductInput saveProductInput)
     {
@@ -106,7 +112,7 @@ public class ProductEntity {
 
         return ProductEntity.builder().id(isbn + "_" + saveProductInput.userId().toString())
                 .isbn(Long.parseLong(isbn))
-                .image(booksApiResponse.getThumbnail_url())
+                .image(getImages(booksApiResponse.getThumbnail_url()))
                 .score(0)
                 .title(booksApiResponse.getDetails().getTitle())
                 .authors(CommonUtils.toArray(booksApiResponse.getDetails().getAuthors().stream().map(author_map -> author_map.get("name"))))

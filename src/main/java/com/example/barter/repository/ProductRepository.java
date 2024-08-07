@@ -63,6 +63,6 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
                 where id = :userId
             
                 """)
-        public Mono<Void> save(String id, long isbn, UUID userId, List<Map<String,String>> works, String title, String[] authors, String description, String image, String[] subjects, long score);
+        public Mono<Void> save(String id, long isbn, UUID userId, List<Map<String,String>> works, String title, String[] authors, String description, String[] image, String[] subjects, long score);
 
 }

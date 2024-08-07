@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 public class ApiResponse<T> {
 
-    String message;
-    T data;
+    private final String message;
+  private final  T data;
 }
 
