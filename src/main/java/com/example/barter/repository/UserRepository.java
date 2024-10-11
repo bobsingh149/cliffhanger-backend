@@ -7,17 +7,16 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
 
 
 @Repository
-public interface UserRepository extends R2dbcRepository<UserEntity, UUID> {
+public interface UserRepository extends R2dbcRepository<UserEntity, String> {
 
     @Query("update users set name = :name, age = :age, profileimage = :profileImage where id = :id returning *")
-    Mono<UserEntity> updateUser(UUID id, String name, int age, String profileImage);
+    Mono<UserEntity> updateUser(String id, String name, int age, String profileImage);
 
     @Query("insert into users(id,name,age,products,profileimage,connections) values (:id,:name,:age,:products,:profileImage,:connections)")
-    Mono<Void> saveUser(UUID id, String name, int age, String[] products, String profileImage, UUID[] connections);
+    Mono<Void> saveUser(String id, String name, int age, String[] products, String profileImage, String[] connections);
 
     @Query("""
             update users
@@ -31,10 +30,10 @@ public interface UserRepository extends R2dbcRepository<UserEntity, UUID> {
             connections
             end;
             """)
-    Mono<Void> saveConnection(UUID id, UUID connectionId);
+    Mono<Void> saveConnection(String id, String connectionId);
 
     @Query("update users set requests = array_append(requests,:requestId) where id = :id")
-    Mono<Void> saveRequest(UUID id, UUID requestId);
+    Mono<Void> saveRequest(String id, String requestId);
 
     @Query("""
             with user_connections as
@@ -43,7 +42,7 @@ public interface UserRepository extends R2dbcRepository<UserEntity, UUID> {
             from users as u, user_connections as uc
             where u.id = any(uc.connections);
             """)
-    Flux<UserEntity> getConnections(UUID id);
+    Flux<UserEntity> getConnections(String id);
 
 
     @Query("""
@@ -53,7 +52,7 @@ public interface UserRepository extends R2dbcRepository<UserEntity, UUID> {
             from users as u, user_requests as ur
             where u.id = any(ur.requests);
             """)
-    Flux<UserEntity> getRequests(UUID id);
+    Flux<UserEntity> getRequests(String id);
 
 
     @Query("""
@@ -72,10 +71,10 @@ public interface UserRepository extends R2dbcRepository<UserEntity, UUID> {
             and not u.id = any(uc.connections)
             )
             select cp.*
-            from common_products as cp
-            order by cp.common_count desc limit 10;
+            from common_products as cp, users as u
+            order by cp.common_count desc,u.score desc offset :offset limit :size;
             """)
-    Flux<UserEntity> getCommonUsers(UUID id);
+    Flux<UserEntity> getCommonUsers(String id, long offset, int size);
 }
 
 
