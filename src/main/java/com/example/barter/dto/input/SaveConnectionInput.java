@@ -1,5 +1,5 @@
 package com.example.barter.dto.input;
 import java.util.UUID;
 
-public record SaveConnectionInput(UUID id, UUID connectionId) {
+public record SaveConnectionInput(String id, String connectionId) {
 }
