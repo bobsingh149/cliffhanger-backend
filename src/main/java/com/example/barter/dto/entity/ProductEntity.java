@@ -1,25 +1,19 @@
 package com.example.barter.dto.entity;
 
 
-import com.example.barter.dto.api.BooksApiResponse;
 import com.example.barter.dto.input.SaveProductInput;
-import com.example.barter.exception.customexception.InvalidIsbnException;
-import com.example.barter.utils.CommonUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.barter.dto.model.PostCategory;
+import com.example.barter.utils.CloudinaryUtils;
 import lombok.Builder;
 import lombok.Data;
-import org.json.JSONObject;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 
 @Data
@@ -31,13 +25,9 @@ public class ProductEntity {
     private final String id;
 
     @NonNull
-    private final long isbn;
-
-    @NonNull
     @Column("userid")
-    private final UUID userId;
+    private final String userId;
 
-    private final List<Map<String,String>>  works;
 
     @NonNull
     private final String title;
@@ -45,9 +35,10 @@ public class ProductEntity {
     @NonNull
     private final String[] authors;
 
-    private final String description;
     private final String[] subjects;
-    private final String[] image;
+
+    @Column("coverimages")
+    private final String[] coverImages;
 
     @NonNull
     private  long score;
@@ -55,73 +46,30 @@ public class ProductEntity {
     @Column("createdat")
     private final LocalDateTime createdAt;
 
+    private final String caption;
 
-    public static String[] getImages(String imageS)
-    {
-        String imageM = imageS.replace("S","M");
-        String imageL = imageS.replace("S","L");
+    @Column("postimage")
+    private final String postImage;
 
-        return new String[]{imageS, imageM, imageL};
-    }
-
-    public static ProductEntity fromJson(String jsonStr, SaveProductInput saveProductInput)
-    {
-        var jsonObject = new JSONObject(jsonStr);
-
-        var keys =  jsonObject.keys();
-
-        List<BooksApiResponse> booksApiResponseList = new ArrayList<>();
-        List<String> isbnList = new ArrayList<>() ;
-
-        while (keys.hasNext())
-        {
-            final var key = keys.next();
-
-            int idx = key.lastIndexOf(':');
-            String isbn = key.substring(idx+1);
-
-            isbnList.add(isbn);
-
-            final JSONObject val = jsonObject.getJSONObject(key);
+    private final PostCategory category;
 
 
-            try {
-                booksApiResponseList.add(new ObjectMapper().readValue(val.toString(), BooksApiResponse.class));
-            }
-            catch (JsonProcessingException e)
-            {
-                throw  new InvalidIsbnException(e.getMessage());
-            }
 
-            catch (Exception e)
-            {
-                throw new RuntimeException("failed to get corresponding book info");
-            }
+    public static ProductEntity fromProductInput(SaveProductInput saveProductInput, MultipartFile file, CloudinaryUtils cloudinaryUtils) throws IOException {
 
-        }
+        final String imageLink = file != null ? cloudinaryUtils.uploadFileAndGetLink(file, "postImages") : null;
 
-
-        if(booksApiResponseList.isEmpty())
-        {
-            throw  new InvalidIsbnException("Invalid isbn number");
-        }
-
-      final  BooksApiResponse booksApiResponse = booksApiResponseList.get(0);
-       final String isbn =isbnList.get(0);
-
-
-        return ProductEntity.builder().id(isbn + "_" + saveProductInput.userId().toString())
-                .isbn(Long.parseLong(isbn))
-                .image(getImages(booksApiResponse.getThumbnail_url()))
-                .score(0)
-                .title(booksApiResponse.getDetails().getTitle())
-                .authors(CommonUtils.toArray(booksApiResponse.getDetails().getAuthors().stream().map(author_map -> author_map.get("name"))))
-                .description(booksApiResponse.getDetails().getDescription())
-                .subjects(CommonUtils.toArray(booksApiResponse.getDetails().getSubjects()))
+        return ProductEntity.builder()
                 .userId(saveProductInput.userId())
-                .works(booksApiResponse.getDetails().getWorks())
+                .title(saveProductInput.title())
+                .caption(saveProductInput.caption())
+                .authors(saveProductInput.authors().toArray(new String[0]))
+                .coverImages(saveProductInput.coverImages().toArray(new String[0]))
+                .score(saveProductInput.score())
+                .subjects(saveProductInput.subjects().toArray(new String[0]))
+                .postImage(imageLink)
+                .category(saveProductInput.category())
                 .build();
-
     }
 
 
