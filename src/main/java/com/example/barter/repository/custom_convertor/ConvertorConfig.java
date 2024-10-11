@@ -43,6 +43,8 @@ public class ConvertorConfig {
         converters.add(new JsonToChatModelConverter(objectMapper));
         converters.add(new ChatModelToJsonConvertor(objectMapper));
         converters.add(new JsonToChatWrapperConverter(objectMapper));
+//        converters.add(new UserImagesWrapperToJsonConvertor(objectMapper));
+//        converters.add(new JsonToUserImagesWrapperConverter(objectMapper));
 
         return R2dbcCustomConversions.of(PostgresDialect.INSTANCE, converters);
     }
@@ -241,6 +243,50 @@ public class ConvertorConfig {
             }
         }
     }
+
+//
+//    @ReadingConverter
+//    static class JsonToUserImagesWrapperConverter implements Converter<Json, ProductEntity.UserImagesWrapper> {
+//
+//        private final ObjectMapper objectMapper;
+//
+//        public JsonToUserImagesWrapperConverter(ObjectMapper objectMapper) {
+//            this.objectMapper = objectMapper;
+//        }
+//
+//        @Override
+//        public ProductEntity.UserImagesWrapper convert(Json json) {
+//
+//            try {
+//                final List<BookImage> bookImages = objectMapper.readValue(json.asString(),
+//                        new TypeReference<List<BookImage>>() {});
+//
+//                return ProductEntity.UserImagesWrapper.builder().userImages(bookImages).build();
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException(e.getMessage());
+//            }
+//        }
+//    }
+
+//    @WritingConverter
+//    static class UserImagesWrapperToJsonConvertor implements Converter<ProductEntity.UserImagesWrapper, Json> {
+//
+//        private final ObjectMapper objectMapper;
+//
+//        public UserImagesWrapperToJsonConvertor(ObjectMapper objectMapper) {
+//            this.objectMapper = objectMapper;
+//        }
+//
+//        @Override
+//        public Json convert(ProductEntity.UserImagesWrapper userImagesWrapper) {
+//            try {
+//                return Json.of(objectMapper.writeValueAsString(userImagesWrapper.userImages()));
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
+
 
 
 }

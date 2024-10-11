@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "openlibraryapi")
 public class BooksApiProperties {
 
+    private String url;
+    private String coverImageUrl;
     private String baseurl;
     private String isbnEndpoint;
     private String bookshelfEndpoint;
@@ -18,6 +20,8 @@ public class BooksApiProperties {
     @Data
     public static class Query
     {
+        String limit;
+        String fields;
         String jscmd;
         String format;
     }

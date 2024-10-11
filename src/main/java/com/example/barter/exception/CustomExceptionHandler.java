@@ -2,6 +2,7 @@ package com.example.barter.exception;
 
 
 import com.example.barter.exception.customexception.EmptyQueryException;
+import com.example.barter.exception.customexception.ImageUploadFailed;
 import com.example.barter.exception.customexception.InvalidIsbnException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,5 +32,12 @@ public class CustomExceptionHandler {
     {
         final ErrorResponse errorResponse = ErrorResponse.builder().errorMessage(e.getMessage()).build();
         return  new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ImageUploadFailed.class)
+    public ResponseEntity<ErrorResponse> handleImageUploadFailedException(ImageUploadFailed e)
+    {
+        final ErrorResponse errorResponse = ErrorResponse.builder().errorMessage(e.getMessage()).build();
+        return  new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

@@ -18,8 +18,8 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
         @Query("SELECT * FROM product ORDER BY score DESC OFFSET :offset LIMIT :limit")
         public Flux<ProductEntity> getAllByPageable(long offset, int limit);
 
-        @Query("SELECT * FROM product where userid = :userId ORDER BY score DESC")
-        public Flux<ProductEntity> getByUserId(UUID userId);
+        @Query("SELECT * FROM product where userid = :userId ORDER BY createdat DESC")
+        public Flux<ProductEntity> getByUserId(String userId);
 
         @Query("""
                 SELECT * from product where
@@ -52,17 +52,14 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
 
 
         @Query("""
-                with insert_product as
-                (
-                INSERT INTO product (id, isbn, userid,works,title,authors,description,image,subjects,score)
-                VALUES(:id, :isbn, :userId, :works ,:title,:authors, :description,:image, :subjects ,:score)
-                returning id
+                with insert_product as (
+                INSERT INTO product (userid,title,authors,coverimages,subjects,score,caption,postimage, category)
+                VALUES(:userId,:title,:authors,:coverImages, :subjects ,:score, :caption, :postImage, :category) returning id
                 )
-                
+               
                 update users set products = array_append(products, (select id from insert_product))
                 where id = :userId
-            
                 """)
-        public Mono<Void> save(String id, long isbn, UUID userId, List<Map<String,String>> works, String title, String[] authors, String description, String[] image, String[] subjects, long score);
+        public Mono<Void> save(String userId, String title, String[] authors, String[] coverImages, String[] subjects, long score, String caption, String postImage, String category);
 
 }

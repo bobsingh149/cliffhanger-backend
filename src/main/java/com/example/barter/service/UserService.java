@@ -7,11 +7,11 @@ import com.example.barter.dto.input.SaveUserInput;
 import com.example.barter.dto.response.UserResponse;
 import com.example.barter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -33,7 +33,7 @@ public class UserService {
     }
 
 
-    public Mono<UserResponse> getUser(UUID id)
+    public Mono<UserResponse> getUser(String id)
     {
          return userRepository.findById(id)
                     .map(UserResponse::fromUserEntity);
@@ -46,7 +46,7 @@ public class UserService {
                 .map(UserResponse::fromUserEntity);
     }
 
-    public Mono<Void> deleteUser(UUID id)
+    public Mono<Void> deleteUser(String id)
     {
         return userRepository.deleteById(id);
     }
@@ -57,7 +57,7 @@ public class UserService {
     }
 
 
-    public Flux<UserResponse> getConnections(UUID id)
+    public Flux<UserResponse> getConnections(String id)
     {
         return userRepository.getConnections(id).map(UserResponse::fromUserEntity);
     }
@@ -70,15 +70,15 @@ public class UserService {
     }
 
 
-    public Flux<UserResponse> getRequests(UUID id)
+    public Flux<UserResponse> getRequests(String id)
     {
         return userRepository.getRequests(id).map(UserResponse::fromUserEntity);
     }
 
 
 
-    public Flux<UserResponse> getCommonUsers(UUID id)
+    public Flux<UserResponse> getCommonUsers(String id, PageRequest pageRequest)
     {
-        return userRepository.getCommonUsers(id).map(UserResponse::fromUserEntity);
+        return userRepository.getCommonUsers(id, pageRequest.getOffset(),pageRequest.getPageSize()).map(UserResponse::fromUserEntity);
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
-import java.util.UUID;
 
 @Data
 @Table("users")
@@ -16,7 +15,7 @@ import java.util.UUID;
 public class UserEntity {
 
     @Id
-  private final UUID id;
+  private final String id;
 
     @NonNull
   private final String name;
@@ -28,13 +27,13 @@ public class UserEntity {
     @Column("profileimage")
 private final String profileImage;
 
-  private final UUID[] connections;
+  private final String[] connections;
 
 
     public static UserEntity fromSaveUserInput(final SaveUserInput saveUserInput)
     {
         final String[] products = {};
-        final UUID[] connections = {};
+        final String[] connections = {};
 
         return UserEntity.builder()
                 .id(saveUserInput.id())
