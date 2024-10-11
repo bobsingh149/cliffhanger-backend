@@ -1,5 +1,5 @@
 CREATE TABLE conversation
 (
-    id varchar primary key,
+    id TEXT primary key,
     chats jsonb
 );

@@ -1,16 +1,17 @@
 CREATE TABLE product
 (
-    id varchar PRIMARY KEY,
-    isbn bigint not null,
-    userId UUID not null,
-    works jsonb,
-    title varchar(255) not null,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    userId TEXT not null,
+    title TEXT not null,
     authors TEXT[] default '{}',
+    coverimages TEXT[],
     description varchar,
-    image TEXT[],
     subjects TEXT[] default '{}',
     score bigint not null,
+    caption TEXT,
+    postimage TEXT,
+    category TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
-);
 
+);
 

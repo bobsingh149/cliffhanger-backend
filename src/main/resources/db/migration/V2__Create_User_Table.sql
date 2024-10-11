@@ -1,10 +1,10 @@
 CREATE TABLE users
 (
-    id UUID primary key,
+    id TEXT primary key,
     name varchar not null,
     age int,
     products TEXT[] default '{}',
     profileimage varchar,
-    connections UUID[] default '{}',
-    requests UUID[] default '{}'
+    connections TEXT[] default '{}',
+    requests TEXT[] default '{}'
 );
