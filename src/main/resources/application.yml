@@ -12,21 +12,32 @@ spring:
     url: r2dbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres
     username: postgres.crnvwifpkixtlzlcydye
     password: NBl9smbaCqHSrKai
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
+
 
 openlibraryapi:
+  url: https://openlibrary.org/search.json
+  coverImageUrl: https://covers.openlibrary.org/b/isbn
   baseurl: https://openlibrary.org
   isbnEndpoint: https://openlibrary.org/api/books
   bookshelfEndpoint: https://openlibrary.org/works/{id}/bookshelves.json
   timeout: 5000
-
   query:
+    limit: 5
+    fields: title,author_name,isbn,subject,want_to_read_count,currently_reading_count,already_read_count
     jscmd: details
     format: json
 
+cloudinary:
+  cloud_name: dllr1e6gn
+  api_key: 172585694199634
+  api_secret: ZV1ITebl6gNZiJ66Lo3iHBkK9z0
 
-logging:
-  level:
-    io.r2dbc.postgresql: DEBUG
+
 
 
 

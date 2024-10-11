@@ -8,15 +8,12 @@ import com.example.barter.dto.response.ApiResponse;
 import com.example.barter.service.UserService;
 import com.example.barter.utils.ControllerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -45,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/getConnections/{id}")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getConnections(@PathVariable UUID id) {
+    public ResponseEntity<Flux<ApiResponse<Object>>> getConnections(@PathVariable String id) {
 
         final var response = userService.getConnections(id);
 
@@ -54,9 +51,9 @@ public class UserController {
     }
 
     @GetMapping("/getCommonUsers/{id}")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getCommonUsers(@PathVariable UUID id) {
+    public ResponseEntity<Flux<ApiResponse<Object>>> getCommonUsers(@PathVariable String id, @RequestParam int page, @RequestParam int size) {
 
-        final var response = userService.getCommonUsers(id);
+        final var response = userService.getCommonUsers(id, PageRequest.of(page,size));
 
         return ControllerUtils.mapFLuxToResponseEntity(response,ResponseMessage.success,HttpStatus.OK);
 
@@ -71,7 +68,7 @@ public class UserController {
     }
 
     @GetMapping("/getRequests/{id}")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getRequests(@PathVariable UUID id) {
+    public ResponseEntity<Flux<ApiResponse<Object>>> getRequests(@PathVariable String id) {
 
         final var response = userService.getRequests(id);
 
@@ -81,7 +78,7 @@ public class UserController {
 
 
     @GetMapping("/getUserById/{id}")
-    public ResponseEntity<Mono<ApiResponse<Object>>> getUser(@PathVariable UUID id) {
+    public ResponseEntity<Mono<ApiResponse<Object>>> getUser(@PathVariable String id) {
         final var response= userService.getUser(id);
         return ControllerUtils.mapMonoToResponseEntity(response, ResponseMessage.success,HttpStatus.OK);
 
@@ -96,7 +93,7 @@ public class UserController {
     }
 
     @DeleteMapping("/deleteUserById/{id}")
-    public ResponseEntity<Mono<ApiResponse<Object>>> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Mono<ApiResponse<Object>>> deleteUser(@PathVariable String id) {
 
         final var response = userService.deleteUser(id);
 
