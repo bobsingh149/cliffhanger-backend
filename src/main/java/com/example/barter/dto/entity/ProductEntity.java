@@ -2,6 +2,7 @@ package com.example.barter.dto.entity;
 
 
 import com.example.barter.dto.input.SaveProductInput;
+import com.example.barter.dto.model.CommentModel;
 import com.example.barter.dto.model.PostCategory;
 import com.example.barter.utils.CloudinaryUtils;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Data
@@ -28,6 +30,8 @@ public class ProductEntity {
     @Column("userid")
     private final String userId;
 
+    @Column("username")
+    private final String userName;
 
     @NonNull
     private final String title;
@@ -37,27 +41,39 @@ public class ProductEntity {
 
     private final String[] subjects;
 
-    @Column("coverimages")
+    @Column("cover_images")
     private final String[] coverImages;
 
     @NonNull
     private  long score;
 
-    @Column("createdat")
-    private final LocalDateTime createdAt;
 
     private final String caption;
 
-    @Column("postimage")
+    @Column("post_image")
     private final String postImage;
 
     private final PostCategory category;
 
 
+    private final String[] likes;
+
+
+    @Column("comments")
+    private final CommentsWrapper commentsWrapper;
+
+    @Column("created_at")
+    private final LocalDateTime createdAt;
+
+    @Builder
+    public static record CommentsWrapper (List<CommentModel> comments){}
+
+
+
 
     public static ProductEntity fromProductInput(SaveProductInput saveProductInput, MultipartFile file, CloudinaryUtils cloudinaryUtils) throws IOException {
 
-        final String imageLink = file != null ? cloudinaryUtils.uploadFileAndGetLink(file, "postImages") : null;
+        final String imageLink = file != null ? cloudinaryUtils.uploadFileAndGetLink(file, "post_images") : null;
 
         return ProductEntity.builder()
                 .userId(saveProductInput.userId())

@@ -13,7 +13,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BookshelfResponse
+public class OpenLibraryBookshelfResponse
 {
    private Map<String,Integer> counts;
 }

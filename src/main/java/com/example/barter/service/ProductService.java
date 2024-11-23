@@ -1,36 +1,42 @@
 package com.example.barter.service;
 
-import com.example.barter.dto.input.SaveProductInput;
-import com.example.barter.dto.response.ProductResponse;
-import com.example.barter.dto.response.UserProductResponse;
-import com.example.barter.exception.customexception.ImageUploadFailed;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.example.barter.dto.input.CommentInput;
+import com.example.barter.dto.input.LikeInput;
+import com.example.barter.dto.input.SaveProductInput;
+import com.example.barter.dto.models.FilterType;
+import com.example.barter.dto.response.PostResponse;
+import com.example.barter.dto.response.ProductResponse;
+import com.example.barter.exception.customexception.ImageUploadFailed;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 public interface ProductService {
 
-     Mono<Void> save(SaveProductInput saveProductInput, MultipartFile file) throws ImageUploadFailed;
+    Mono<Void> save(SaveProductInput saveProductInput, MultipartFile file) throws ImageUploadFailed;
 
-     Flux<UserProductResponse> getAllByPageable(Pageable pageable);
+    Flux<PostResponse> getAllByPageable(String userId, Pageable pageable, FilterType filterType);
 
-     Flux<UserProductResponse> getByFilter(String subject);
+    Flux<PostResponse> getByUserId(String userId);
 
-     Flux<UserProductResponse> getByQuery(String q);
+    Flux<ProductResponse> getSearchResults(String q);
 
-     Flux<UserProductResponse> getByUserId(String userId);
+    Mono<PostResponse> getById(String id);
 
-     Mono<List<ProductResponse>> getSearchResults(String q);
+    Mono<Void> deleteById(String id);
 
-     Mono<UserProductResponse> getById(String id);
+    Mono<Void> saveComment(CommentInput commentInput);
 
-     Mono<Void> deleteById(String id);
+    Mono<Void> saveLike(LikeInput likeInput);
 
-//     Mono<UserProductResponse> findByIsbn(SaveProductInput saveProductInput);
+    Flux<PostResponse> getByBarterFilter(String city, String userId, Pageable pageable);
 
+    Flux<PostResponse> getBySearch(String q, String userId, Pageable pageable);
+
+    Mono<Void> incrementCommentLikeCount(String productId, String commentId);
 
 }
 

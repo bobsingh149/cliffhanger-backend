@@ -8,9 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.print.Doc;
 import java.util.List;
-import java.util.Map;
 
 
 @Data
@@ -18,7 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BooksResponse {
+public class OpenLibraryBooksQueryResponse {
 
     List<Docs> docs;
 

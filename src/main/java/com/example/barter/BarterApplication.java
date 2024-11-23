@@ -1,12 +1,13 @@
 package com.example.barter;
 
-import com.example.barter.config.BooksApiProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-@EnableConfigurationProperties({BooksApiProperties.class})
+@EnableAsync
+@ConfigurationPropertiesScan
 public class BarterApplication {
 
 	public static void main(String[] args) {
@@ -14,3 +15,20 @@ public class BarterApplication {
 	}
 
 }
+
+/*
+
+todo
+1. add log for the routes it should log status code
+2. add spring security
+3. multihthreading for the simantanoeus uplaod of 5 images
+
+routes remaining:-
+-> home page
+-> barter filter
+-> search by title, author or subjects
+-> liking and commenting
+-> getting the comments
+
+
+ */

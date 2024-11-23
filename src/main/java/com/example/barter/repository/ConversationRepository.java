@@ -13,9 +13,9 @@ import java.util.Map;
 public interface ConversationRepository extends R2dbcRepository<ConversationEntity,String> {
 
     @Query("""
-            INSERT INTO conversation (id, chats) VALUES (:id, :chat)
+               INSERT INTO conversation (id, chats) VALUES (:id, :chat)
                ON CONFLICT (id)
-               DO UPDATE SET chats = conversation.chats || :chat
+               DO UPDATE SET chats = chats || :chat
             """ )
     Mono<Void> save(String id, ChatModel chat);
 }

@@ -1,17 +1,20 @@
 CREATE TABLE product
 (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    userId TEXT not null,
+    userid TEXT not null,
+    username TEXT not null,
     title TEXT not null,
     authors TEXT[] default '{}',
-    coverimages TEXT[],
+    cover_images TEXT[],
     description varchar,
     subjects TEXT[] default '{}',
     score bigint not null,
     caption TEXT,
-    postimage TEXT,
+    post_image TEXT,
     category TEXT,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
+    likes TEXT[] default '{}',
+    comments jsonb default '[]'::jsonb,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
 
 );
 

@@ -7,17 +7,19 @@ spring:
     enabled: true
     url: jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres
     user: postgres.crnvwifpkixtlzlcydye
-    password: NBl9smbaCqHSrKai
+    password: ${DB_PASSWORD}
   r2dbc:
     url: r2dbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres
     username: postgres.crnvwifpkixtlzlcydye
-    password: NBl9smbaCqHSrKai
+    password: ${DB_PASSWORD}
   servlet:
     multipart:
       enabled: true
       max-file-size: 30MB
       max-request-size: 30MB
 
+server:
+  port: ${APP_PORT:7000}
 
 openlibraryapi:
   url: https://openlibrary.org/search.json
@@ -32,10 +34,17 @@ openlibraryapi:
     jscmd: details
     format: json
 
+googleBooksApi:
+  url: https://www.googleapis.com/books/v1/volumes
+  timeout: 5000
+  query:
+    key: ${BOOKS_API_KEY}
+
+
 cloudinary:
   cloud_name: dllr1e6gn
   api_key: 172585694199634
-  api_secret: ZV1ITebl6gNZiJ66Lo3iHBkK9z0
+  api_secret: ${CLOUDINARY_API_SECRET}
 
 
 

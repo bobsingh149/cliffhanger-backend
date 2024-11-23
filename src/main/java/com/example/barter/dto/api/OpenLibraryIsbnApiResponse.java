@@ -15,7 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BooksApiResponse {
+public class OpenLibraryIsbnApiResponse {
 
      String thumbnail_url;
      Details details;
