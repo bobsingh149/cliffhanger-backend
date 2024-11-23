@@ -1,4 +1,4 @@
-package com.example.barter.dto.models;
+package com.example.barter.dto.model;
 
 public enum FilterType {
     all,

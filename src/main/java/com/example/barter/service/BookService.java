@@ -18,7 +18,7 @@ import com.example.barter.dto.entity.ProductEntity;
 import com.example.barter.dto.input.CommentInput;
 import com.example.barter.dto.input.LikeInput;
 import com.example.barter.dto.input.SaveProductInput;
-import com.example.barter.dto.models.FilterType;
+import com.example.barter.dto.model.FilterType;
 import com.example.barter.dto.response.PostResponse;
 import com.example.barter.dto.response.ProductResponse;
 import com.example.barter.exception.customexception.ImageUploadFailed;
