@@ -4,6 +4,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
 
+import com.example.barter.dto.entity.BookBuddyEntity;
 import com.example.barter.dto.entity.UserEntity;
 import com.example.barter.dto.model.BookBuddyModel;
 import com.example.barter.dto.model.ConversationModel;
@@ -19,7 +20,7 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
     @Query("""
              update users set name = :name, age = :age, profile_image = :profileImage, bio = :bio, city = :city where id = :id
             """)
-    Mono<Void> updateUser(String name, int age, String profileImage, String bio, String city);
+    Mono<Void> updateUser(String id,String name, int age, String profileImage, String bio, String city);
 
     @Query("insert into users(id,name,age,profile_image,bio,city) values (:id,:name,:age,:profileImage,:bio,:city)")
     Mono<Void> saveUser(String id, String name, int age, String profileImage, String bio, String city);
@@ -29,9 +30,9 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
             set connections =
             case
             when id = :id
-            then ( select array( select distinct array_append(connections,:connectionId) ) )
+            then (select array( select distinct array_append(connections,:connectionId) ) )
             when id = :connectionId
-            then ( select array( select distinct array_append(connections,:id) ) )
+            then (select array( select distinct array_append(connections,:id) ) )
             else
             connections
             end;
@@ -52,24 +53,35 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
 
     @Query("""
             update users
-            set conversations = conversations || :conversationModel
-            where id = :id1 or id = :id2;
-           
+            set conversations = conversations || jsonb_build_array(:conversationModel)
+            where id = :id;
             """)
-    Mono<Void> saveConversation(String id1, String id2, ConversationModel conversationModel);
+    Mono<Void> saveConversation(String id, ConversationModel conversationModel);
 
     @Query("""
             update users
-            set conversations = conversations || :conversationModel
+            set conversations = conversations || jsonb_build_array(:conversationModel)
             where id = :id;
             """)
     Mono<Void> saveConversationGroup(String id, ConversationModel conversationModel);
 
-    @Query("update users set requests = requests || :requestModel where id = :id")
+    @Query("""
+            update users
+            set requests = case 
+                when not exists (
+                    select 1 
+                    from jsonb_array_elements(coalesce(requests, '[]'::jsonb)) as request 
+                    where (request->>'userId') = (:requestModel->>'userId')
+                )
+                then coalesce(requests, '[]'::jsonb) || jsonb_build_array(:requestModel)
+                else requests
+            end
+            where id = :id
+            """)
     Mono<Void> saveRequest(String id, RequestModel requestModel);
 
     @Query("""
-            update users 
+            update users
             set requests = (
                 select jsonb_agg(request)
                 from jsonb_array_elements(requests) request
@@ -122,93 +134,133 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
 
     @Query(
             """
-                    with discard_users as
-                    (
-                        select array_cat(connections,book_buddies) as ids
-                        from users
-                        where id = 'userId'
-                    ),
-                 
-                    users_with_subjects as
-                    (
-                        select u.*,
-                        (
-                            select  array_agg(distinct subject) as subjects
-                            from product as book, unnest(book.subjects) as subject
-                            where book.id = any(array_cat(u.products, u.likedproducts))
-                        )
-              
-                        from users as u
-                    ),
-                 
-                    my_subjects as
-                    (
-                        select uws.user_subjects as subjects
-                        from users_with_subjects as uws
-                        where uws.id = 'userId'
-                    ),
-                 
-                    users_with_score as
-                    (
-                    select uws.id,
-                    (
-                        select count(*)
-                        from unnest(uws.user_subjects) as subject, my_subjects
-                        where subject = any(my_subjects.subjects)
-                    ) + 10 as common_subject_count
-                 
-                    from users_with_subjects as uws ,discard_users
-                    where uws.id != any(discard_users.ids) and uws.id != :userId
-                    ),
-                 
-                    SELECT
-                           id,
-                           name,
-                           age,
-                           bio,
-                           city,
-                           products,
-                           liked_products,
-                           commented_products,
-                           profile_image,
-                           connections,
-                           requests,
-                           book_buddies
-                 
-                    from users_with_score
-                    order by common_subject_count desc  offset 0 limit 1
+                
+                                                    with book_buddy_ids as
+                                                        (
+                                                        select ARRAY_AGG(buddy_id->>'userId') as ids
+                                                        from users, jsonb_array_elements(book_buddies) as buddy_id
+                                                        where users.id = :userId
+                                                        ),
+                                                       
+                                    
+                                                        connection_ids as
+                                                        (
+                                                            select ARRAY_AGG(connection->>'userId') as ids
+                                                            from users, jsonb_array_elements(conversations) as connection
+                                                            where users.id = :userId
+                                                        ),
+                                    
+                                                        discard as
+                                                        (
+                                                                select array(select distinct unnest(
+                                                                 array_cat(:userIds, array_cat(connection_ids.ids,book_buddy_ids.ids)))) as ids
+                                                                from book_buddy_ids, connection_ids
+                                                        ),
+                                     
+                                                        discard_users as
+                                                        (
+                                                            select(
+                                                            select array_agg(id)
+                                                            from unnest(discard.ids) as id
+                                                            where id is not null
+                                                            ) as ids
+                                                            from discard
+                                                        ),
+
+                                     
+                                                            users_with_subjects as
+                                                            (
+                                                                select u.*,
+                                                                (
+                                                                    select  array_agg(distinct subject) as user_subjects
+                                                                    from product as book, unnest(book.subjects) as subject
+                                                                    where book.id = any(array_cat(u.products, u.liked_products))
+                                                                )
+                                    
+                                                                from users as u
+                                                            ),
+                                     
+                                                        filtered_users as
+                                                        (
+                                                            select *
+                                                            from users_with_subjects, discard_users
+                                                            where id != ALL(discard_users.ids)
+                                                        ),
+                                                       
+                                                            my_subjects as
+                                                            (
+                                                                select uws.user_subjects as subjects
+                                                                from users_with_subjects as uws
+                                                                where uws.id = :userId
+                                                            ),
+                                                       
+                                                            users_with_score as
+                                                            (
+                                                            select fu.*,
+                                                            (
+                                                                select count(*)
+                                                                from unnest(fu.user_subjects) as subject, my_subjects
+                                                                where subject = any(my_subjects.subjects)
+                                                            ) + 0 as common_subject_count
+                                                       
+                                                            from filtered_users as fu
+                                                            )
+                                                        
+                                                            SELECT
+                                                                   id,
+                                                                   name,
+                                                                   age,
+                                                                   bio,
+                                                                   city,
+                                                                   profile_image,
+                                                                   common_subject_count
+                                                       
+                                                            from users_with_score as uws
+                                                            order by uws.common_subject_count desc  offset 0 limit 1;                              
+
                  """
     )
-    Flux<UserEntity> getBookBuddy(String userId);
+    Flux<BookBuddyEntity> getBookBuddy(String userId, String[] userIds);
 
     @Query("""
                     update users
-                    set book_buddies = book_buddies || :bookBuddyModel
+                    set book_buddies = book_buddies || jsonb_build_array(:bookBuddyModel)
                     where id = :id
             """)
     Mono<Void> addBookBuddy(String id, BookBuddyModel bookBuddyModel);
 
 
     @Query("""
-            select * from users where id = any(:connectionIds) or id = any(:requestIds) or id = any(:bookIds)
+            select * from users where id = any(:connectionIds) or id= any(:members) or  id = any(:requestIds) or id = any(:bookIds)
             """)
-    Flux<UserEntity> getUserInfoFromIds(String[] connectionIds, String[] requestIds, String[] bookIds);
+    Flux<UserEntity> getUserInfoFromIds(String[] connectionIds, String[] members, String[] requestIds, String[] bookIds);
 
     
     @Query("""
 
-with book_buddy_ids as
-(
-     select  jsonb_array_elements(book_buddies)->>'userId' as id,
-     (jsonb_array_elements(book_buddies)->>'common_subject_count')::int as common_subject_count
-     from users where id = :id
-)
+        with book_buddy_ids as
+        (
+        select  jsonb_array_elements(book_buddies)->>'userId' as id,
+        (jsonb_array_elements(book_buddies)->>'common_subject_count')::int as common_subject_count
+        from users where id = :id
+        )
 
-select * from users,book_buddy_ids where users.id in (book_buddy_ids.id)
-order by book_buddy_ids.common_subject_count desc;
+        select * from users,book_buddy_ids where users.id in (book_buddy_ids.id)
+        order by book_buddy_ids.common_subject_count desc;
 
        """)
     Flux<UserEntity> getBookBuddiesOrderByScore(String id);
+
+    @Query("""
+        update users
+        set conversations = (
+            select jsonb_agg(conversation)
+            from jsonb_array_elements(conversations) as conversation
+            where (conversation->>'conversationId') != :conversationId
+        )
+        where id = :id
+        """)
+    Mono<Void> removeConversation(String id, String conversationId);
 
 }
 

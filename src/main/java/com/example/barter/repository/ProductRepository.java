@@ -11,155 +11,176 @@ import com.example.barter.dto.model.CommentsWithUserBasicInfo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 
 @Repository
-public interface ProductRepository extends R2dbcRepository<ProductEntity, String> {
+public interface ProductRepository extends R2dbcRepository<ProductEntity, UUID> {
 
         @Query("""
-                with liked_users as
-                (
-                    select connections as ids
-                    from users
-                    where id = :userId
-                ),
+                                             with interacted_users as
+                                             (
+                                                 select interacted_users as ids
+                                                 from users
+                                                 where id = :userId
+                                             ),
                 
-                  with connected_users as
-                (
-                    select liked_users as ids
-                    from users
-                    where id = :userId
-                ),
+                                             connected_users as
+                                             (
+                                                 select ARRAY_AGG(connection->>'userId') as ids
+                                                 from users, jsonb_array_elements(conversations) as connection
+                                                 where users.id = :userId
+                                             ),
                 
-                
-                users_with_subjects as
-                (
-                    select u.*,
-                    (
-                        select  array_agg(distinct subject) as user_subjects
-                        from product as book, unnest(book.subjects) as subject
-                
-                        where book.id = any(array_cat(u.products, u.likedproducts))
-                    )
-                    from users as u
-                ),
-                cur_user_subjects as
-                (
-                    select uws.user_subjects as subjects
-                    from users_with_subjects as uws
-                    where uws.id = :userId
-                ),
-                users_with_score as
-                (
-                select uws.id,
-                (
-                    select count(*)
-                    from unnest(uws.user_subjects) as subject, cur_user_subjects
-                    where subject = any(cur_user_subjects.subjects)
-                ) as common_subject_count
-                
-                from users_with_subjects as uws
-                ),
-           
-                 ranked_posts AS (
-                  SELECT
-                    product.*,
-                    -- Base score
-                    (array_length(product.likes) + (array_length(product.comments) * 2)) AS base_score,
-                
-                    (
-                    select users_with_score.common_subject_count from users_with_subjects where users_with_subjects.id = product.userid 
-                    ) as common_subjects,
-                
-  
-                    -- Time decay (using hours)
-                    1.0 / (1 + LN(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - product.created_at)) / 3600, 1))) AS time_decay,
-                
-                    -- Relative engagement
-                    (array_length(product.likes) + (afrray_length(product.comments) * 2)) / GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - product.created_at)) / 3600 * 0.5, 1) AS relative_engagement,
-                 
-                    (
-                    case 
-                    when product.userid = any(connected_users.ids)
-                    then 3.0
-                   
-                    when product.userid = any(liked_users.ids)
-                    then 2.0
-                    
-                    else
-                    1.0
-               
-                    end
-                    ) as boost
-                    
-                    
-                  FROM
-                    product , best_users, connected_users, liked_users
-                
-                )
-                
-                select id,title,authors
-                 (base_score  * (1 + common_subjects)*0.1 *  time_decay * relative_engagement * boost) AS final_score
-                FROM
-                  ranked_posts
-                ORDER BY
-                  final_score DESC
-                offset :offset LIMIT :limit
+                                             users_with_subjects as
+                                             (
+                                                 select u.*,
+                                                 (
+                                                     select  array_agg(distinct subject) as user_subjects
+                                                     from product as book, unnest(book.subjects) as subject
+                                                     where book.id = any(array_cat(u.products, u.liked_products))
+                                                 )
+                                                 from users as u
+                                             ),
+                                            
+                                             cur_user_subjects as
+                                             (
+                                                 select uws.user_subjects as subjects
+                                                 from users_with_subjects as uws
+                                                 where uws.id = :userId
+                                             ),
+                                            
+                                             users_with_score as
+                                             (
+                                             select uws.id,
+                                             (
+                                                 select count(*)
+                                                 from unnest(uws.user_subjects) as subject, cur_user_subjects
+                                                 where subject = any(cur_user_subjects.subjects)
+                                             ) as common_subject_count
+                                            
+                                             from users_with_subjects as uws
+                                             ),
+                                            
+                                              ranked_posts AS (
+                                               SELECT
+                                                 product.*,
+                                                 -- Base score
+                                                 (cardinality(product.likes) + (jsonb_array_length(product.comments) * 2)) AS base_score,
+                                                 (
+                                                 select users_with_score.common_subject_count from users_with_score
+                                                 where users_with_score.id = product.userid
+                                                 ) as common_subjects,
+                                                
+                                                 -- Time decay (using hours)
+                                                 1.0 / (1 + LN(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - product.created_at)) / 3600, 1))) AS time_decay,
+                                                
+                                                 -- Relative engagement
+                                                 (cardinality(product.likes) + (jsonb_array_length(product.comments) * 2)) / GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - product.created_at)) / 3600 * 0.5, 1) AS relative_engagement,
+                                            
+                                                 (
+                                                 case
+                                                 when product.userid = any(connected_users.ids)
+                                                 then 3.0
+                                                
+                                                 when product.userid = any(interacted_users.ids)
+                                                 then 2.0
+                                                
+                                                 else
+                                                 1.0
+                                                
+                                                 end
+                                                 ) as boost
+                                                
+                                               FROM
+                                                 product, connected_users, interacted_users
+                                                 where product.userid != :userId
+                                            
+                                             ),
+                                            
+                                              posts_with_score as(
+                                                 SELECT ranked_posts.*,
+                                              (base_score  * (1 + common_subjects)*0.1 *  time_decay * relative_engagement * boost) AS final_score
+                                             FROM
+                                               ranked_posts
+                                             )
+                                         
+                                             SELECT
+                                                 id,
+                                                 userid,
+                                                 title,
+                                                 authors,
+                                                 cover_images,
+                                                 description,
+                                                 subjects,
+                                                 score,
+                                                 caption,
+                                                 post_image,
+                                                 category,
+                                                 likes,
+                                                 comments,
+                                                 created_at
+                                                                             
+                                             from posts_with_score
+                                            
+                                             ORDER BY
+                                               final_score DESC
+                                             offset :offset LIMIT :limit;
                 """)
          Flux<ProductEntity> getAllByPageable(String userId, long offset, int limit);
 
 
         @Query("""
-                select * from product
-                where post_category = 'barter' and city = :city and userId != :userId
-                order by score desc
-                offset :offset limit :limit;
+                with user_city as
+                    (select city from users where id = :userId)
+               
+                            select * from product
+                            where category = 'barter'
+                             and (select city from users where users.id = product.userid) = (select city from user_city)
+                             and userId != :userId
+                            order by score desc
+                            offset :offset limit :limit ;
                 """)
-         Flux<ProductEntity> getByBarterFilter(String city, String userId, long offset, int limit);
+         Flux<ProductEntity> getByBarterFilter(String userId, long offset, int limit);
 
         @Query("""
-                
                 with product_with_subject as
                 (
                     select *,
                     (
-                    select subject from unnest(subjects as subject)
+                    select subject from unnest(subjects) as subject
                     where subject ilike :q || '%'
                     order by length(subject) limit 1
                     ) as query_subject,
                     (
                     case
-                
                     when title ilike :q || '%'
                     then title
                     else
                     NULL
-                
                     end
                     ) as query_title
-            
                     from product
-                )
+                ),
                 
-                subject_with_query(
-                select *,
+                subject_with_query as(
+                select * ,
                 (
-                  case
-        
-                when query_subject != NULL and query_title != NULL
+                case
+                when query_subject is not NULL and query_title is not NULL
                 then (
-                case 
-                when length(query_title)<= then query_title else query_subject 
+                case
+                when length(query_title) <= length(query_subject) then query_title else query_subject 
                 end)
                 
-                when query_title != NULL
+                when query_title is not NULL
                 then query_title
                 else
                 query_subject
                 end
                 ) as query_word
-                
                 from product_with_subject
-                where query_subject != NULL or query_title != NULL        
+                where query_subject is not null or query_title is not null     
                 )
                 
                 SELECT
@@ -179,23 +200,21 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
                     created_at
                 from subject_with_query
                 order by length(query_word)
-                offset :offset limit :limit
+                offset :offset limit :limit;
+               
                 """)
-        Flux<ProductEntity> getBySearch(String q, String userId, long offset, int limit);
+        Flux<ProductEntity> getBySearch(String q, long offset, int limit);
 
         @Query("SELECT * FROM product where userid = :userId ORDER BY created_at DESC")
          Flux<ProductEntity> getByUserId(String userId);
 
 
         @Query("""
-                with user_name_cte as
-                (
-                select name from users where id = :userId
-                ),
                 
-                 insert_product as (
-                INSERT INTO product (userid, username, title,authors,cover_images,subjects,score,caption,post_image, category)
-                VALUES(:userId, (select name from user_name_cte)  ,:title,:authors,:coverImages, :subjects ,:score, :caption, :postImage, :category) returning id
+                
+                with insert_product as (
+                INSERT INTO product (userid, title,authors,cover_images,subjects,score,caption,post_image, category)
+                VALUES(:userId ,:title,:authors,:coverImages, :subjects ,:score, :caption, :postImage, :category) returning id
                 )
                
                 update users set products = array_append(products, (select id from insert_product))
@@ -205,34 +224,61 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
 
 
         @Query("""
+                with helper as (
                 update product
-                set comments = comments || :commentModel
-                where id = :id;
+                set comments = comments || jsonb_build_array(:commentModel)
+                where id = :id
+                returning userid
+                )
+                update users
+                set interacted_users =
+                case
+                when array_position(interacted_users, (select userid from helper)) is NULL
+                then array_append(interacted_users, (select userid from helper))
+                else interacted_users
+                end
+                where id = :userId;
                 """)
-        Mono<Void> saveComment(String id, CommentModel commentModel);
+        Mono<Void> saveComment(UUID id, CommentModel commentModel, String userId);
 
     @Query("""
+                with helper as (
                 update product
-                set likes = array_append(likes,:userId)
-                where id = :id;
+                set likes =
+                case
+                when array_position(likes, :userId) is NULL then array_append(likes, :userId)
+                else likes
+                end
+                where id = :id
+                returning userid
+                )
+               
+                update users
+                set interacted_users =
+                case 
+                when array_position(interacted_users, (select userid from helper)) is NULL
+                then array_append(interacted_users, (select userid from helper))
+                else interacted_users
+                end
+                where id = :userId;
                 """)
-    Mono<Void> likePost(String id, String userId);
+    Mono<Void> likePost(UUID id, String userId);
 
     @Query("""
-            UPDATE product 
+            UPDATE product
             SET comments = (
                 SELECT jsonb_agg(
-                    CASE 
-                        WHEN comment->>'id' = :commentId 
+                    CASE
+                        WHEN comment->>'id' = :commentId
                         THEN jsonb_set(comment, '{likeCount}', (COALESCE((comment->>'likeCount')::int, 0) + 1)::text::jsonb)
-                        ELSE comment 
+                        ELSE comment
                     END
                 )
                 FROM jsonb_array_elements(comments) comment
             )
             WHERE id = :productId
             """)
-    Mono<Void> incrementCommentLikeCount(String productId, String commentId);
+    Mono<Void> incrementCommentLikeCount(UUID productId, String commentId);
 
  
     @Query("""
@@ -242,7 +288,7 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
                 jsonb_array_elements(comments) comment
                 WHERE id = :productId
             )
-            SELECT 
+            SELECT
                 (SELECT jsonb_agg(comment ORDER BY (comment->>'likeCount')::int DESC)
                  FROM product p,
                  jsonb_array_elements(p.comments) comment
@@ -256,6 +302,13 @@ public interface ProductRepository extends R2dbcRepository<ProductEntity, String
                  WHERE u.id IN (SELECT user_id FROM comment_users)
                 ) as user_infos
             """)
-    Mono<CommentsWithUserBasicInfo> getCommentsByProductId(String productId);
+    Mono<CommentsWithUserBasicInfo> getCommentsByProductId(UUID productId);
+
+
+    @Query("""
+            select * from product where id = :id;
+            """)
+
+    Mono<ProductEntity> getById(UUID id);
 
 }

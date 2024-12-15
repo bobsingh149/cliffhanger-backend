@@ -7,15 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.barter.dto.input.SaveConversationInput;
@@ -28,7 +20,6 @@ import com.example.barter.utils.ControllerUtils;
 import com.example.barter.utils.ControllerUtils.ResponseMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -43,9 +34,6 @@ public class UserController {
         this.userService = userService;
         this.objectMapper=objectMapper;
     }
-
-
-    @GetMapping("")
 
     @PostMapping(value = "/saveUser",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Mono<ApiResponse<Object>>> save(@RequestParam(value = "file", required = false) MultipartFile file,
@@ -64,10 +52,10 @@ public class UserController {
         return ControllerUtils.mapMonoToResponseEntity(response,  ResponseMessage.success, HttpStatus.OK);
     }
 
-    @PostMapping("/saveConnection")
-    public ResponseEntity<Mono<ApiResponse<Object>>> saveConversation(@RequestBody SaveConversationInput saveConversationInput) {
+    @PostMapping("/saveConnection/{id}")
+    public ResponseEntity<Mono<ApiResponse<Object>>> saveConnection( @PathVariable String id,@RequestBody SaveConversationInput saveConversationInput) {
 
-        final var response = userService.saveConnection(saveConversationInput);
+        final var response = userService.saveConnection(id,saveConversationInput);
         return ControllerUtils.mapMonoToResponseEntity(response,ResponseMessage.success,HttpStatus.CREATED);
     }
 
@@ -88,7 +76,7 @@ public class UserController {
     }
 
     @GetMapping("/getCommonUsers/{id}")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getCommonUsers(@PathVariable String id, @RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<Mono<ApiResponse<Object>>> getCommonUsers(@PathVariable String id, @RequestParam int page, @RequestParam int size) {
 
         final var response = userService.getCommonUsers(id, PageRequest.of(page,size));
 
@@ -97,7 +85,7 @@ public class UserController {
     }
 
     @GetMapping("/getBookBuddy")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getBookBuddy(@RequestParam String id)
+    public ResponseEntity<Mono<ApiResponse<Object>>> getBookBuddy(@RequestParam String id)
     {
         final var response = userService.getBookBuddy(id);
         return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
@@ -111,15 +99,12 @@ public class UserController {
         return ControllerUtils.mapMonoToResponseEntity(response,ResponseMessage.success,HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/removeRequest")
+    @PatchMapping("/removeRequest")
     public ResponseEntity<Mono<ApiResponse<Object>>> removeRequest(@RequestBody SaveRequestInput saveRequestInput) {
 
         final var response = userService.removeRequest(saveRequestInput);
         return ControllerUtils.mapMonoToResponseEntity(response,ResponseMessage.success,HttpStatus.NO_CONTENT);
     }
-
-
-    
 
     @DeleteMapping("/deleteUserById/{id}")
     public ResponseEntity<Mono<ApiResponse<Object>>> deleteUser(@PathVariable String id) {

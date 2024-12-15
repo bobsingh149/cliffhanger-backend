@@ -10,6 +10,7 @@ CREATE TABLE users
     commented_products TEXT[] default '{}',
     profile_image varchar,
     connections TEXT[] default '{}',
+    interacted_users TEXT[] default '{}',
     requests jsonb default '[]'::jsonb,
     book_buddies jsonb default '[]'::jsonb,
     conversations jsonb default '[]'::jsonb

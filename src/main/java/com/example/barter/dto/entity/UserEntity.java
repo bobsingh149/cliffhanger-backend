@@ -49,6 +49,9 @@ public class UserEntity {
 
     private final String[] connections;
 
+    @Column("interacted_users")
+    private final String[] interactedUsers;
+
     @Column("requests")
     private final RequestWrapper requestWrapper;
 

@@ -9,5 +9,6 @@ import java.time.LocalDateTime;
 public class BookBuddyResponse {
     private final UserResponse userResponse;
     private final LocalDateTime timestamp;
+    private final int commonSubjectCount;
 
 } 

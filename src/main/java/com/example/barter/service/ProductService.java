@@ -1,5 +1,8 @@
 package com.example.barter.service;
 
+import com.example.barter.dto.model.CommentsWithUserBasicInfo;
+import com.example.barter.dto.response.CommentResponse;
+import com.example.barter.dto.response.UserProfileResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,29 +17,36 @@ import com.example.barter.exception.customexception.ImageUploadFailed;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.UUID;
+
 public interface ProductService {
 
     Mono<Void> save(SaveProductInput saveProductInput, MultipartFile file) throws ImageUploadFailed;
 
-    Flux<PostResponse> getAllByPageable(String userId, Pageable pageable, FilterType filterType);
+    Flux<PostResponse> getAllByPageable(String userId, Pageable pageable);
+
+    Mono<UserProfileResponse> getUserProfile(String userId);
 
     Flux<PostResponse> getByUserId(String userId);
 
-    Flux<ProductResponse> getSearchResults(String q);
+    Mono<List<ProductResponse>> getSearchResults(String q);
 
-    Mono<PostResponse> getById(String id);
+    Mono<PostResponse> getById(UUID id);
 
-    Mono<Void> deleteById(String id);
+    Mono<Void> deleteById(UUID id);
 
     Mono<Void> saveComment(CommentInput commentInput);
 
     Mono<Void> saveLike(LikeInput likeInput);
 
-    Flux<PostResponse> getByBarterFilter(String city, String userId, Pageable pageable);
+    Flux<PostResponse> getByBarterFilter(String userId, Pageable pageable);
 
-    Flux<PostResponse> getBySearch(String q, String userId, Pageable pageable);
+    Flux<PostResponse> getBySearch(String q, Pageable pageable);
 
-    Mono<Void> incrementCommentLikeCount(String productId, String commentId);
+    Mono<Void> incrementCommentLikeCount(UUID productId, String commentId);
+
+    Mono<List<CommentResponse>> getComments(UUID productId);
 
 }
 

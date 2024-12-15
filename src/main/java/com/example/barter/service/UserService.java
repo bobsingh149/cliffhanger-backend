@@ -2,9 +2,7 @@ package com.example.barter.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +17,7 @@ import com.example.barter.dto.model.BookBuddyModel;
 import com.example.barter.dto.model.ConversationModel;
 import com.example.barter.dto.model.RequestModel;
 import com.example.barter.dto.response.DetailedUserResponse;
+import com.example.barter.dto.response.UserBookBuddyResponse;
 import com.example.barter.dto.response.UserResponse;
 import com.example.barter.repository.UserRepository;
 import com.example.barter.utils.CloudinaryUtils;
@@ -64,7 +63,8 @@ public class UserService {
 
         final var userEntity = UserEntity.fromSaveUserInput(saveUserInput,profileImage);
 
-        return userRepository.updateUser(userEntity.getName(),
+        return userRepository.updateUser(userEntity.getId(),
+                userEntity.getName(),
                 userEntity.getAge(), userEntity.getProfileImage(), userEntity.getBio(),
                 userEntity.getCity());
     }
@@ -79,28 +79,30 @@ public class UserService {
         return userRepository.deleteById(id);
     }
 
-    public Mono<Void> saveConnection(SaveConversationInput saveConversationInput) {
+    public Mono<Void> saveConnection(String id,SaveConversationInput saveConversationInput) {
 
         saveConversationInput.setConversationId(UUID.randomUUID().toString());
 
-        Mono<Void> saveConnectionMono = saveConversationInput.isGroup()
-                ? userRepository.saveGroupConnection(saveConversationInput.getUserId(), saveConversationInput.getUsers().toArray(String[]::new))
-                : userRepository.saveConnection(saveConversationInput.getUserId(), saveConversationInput.getUsers().get(0));
-
         ConversationModel conversationModel = ConversationModel.fromSaveConversationInput(saveConversationInput);
 
+        String otherId = conversationModel.getUserId();
 
-      return  saveConnectionMono.flatMap(res -> saveConversationInput.isGroup()
-                 ? userRepository.saveConversationGroup(saveConversationInput.getUserId(),conversationModel)
-                 : userRepository.saveConversation(saveConversationInput.getUserId(),saveConversationInput.getUsers().get(0),conversationModel));
+        ConversationModel otherConversationModel = ConversationModel.fromSaveConversationInput(saveConversationInput);
+        otherConversationModel.setUserId(id);
+
+
+        return conversationModel.isGroup() ? userRepository.saveConversationGroup(id,conversationModel)
+
+                :    userRepository.saveConversation(id,conversationModel)
+                    .onErrorResume(error->userRepository.removeConversation(id,conversationModel.getConversationId()))
+                    .then(userRepository.saveConversation(otherId,otherConversationModel))
+                    .onErrorResume(error->userRepository.removeConversation(id,conversationModel.getConversationId()));
     }
 
-
-
     public Mono<Void> saveRequest(SaveRequestInput saveRequestInput) {
-        return userRepository.saveRequest(saveRequestInput.id(), 
+        return userRepository.saveRequest(saveRequestInput.requestId(),
             RequestModel.builder()
-                .userId(saveRequestInput.requestId())
+                .userId(saveRequestInput.id())
                 .timestamp(LocalDateTime.now())
                 .build());
     }
@@ -116,16 +118,18 @@ public class UserService {
     }
 
 
-    public Flux<UserResponse> getBookBuddy(String id) {
-        return userRepository.getBookBuddy(id)
-            .flatMap(userEntity -> 
+    public Flux<UserBookBuddyResponse> getBookBuddy(String id) {
+
+        return userRepository.getBookBuddy(id, new String[]{id})
+            .flatMap(bookBuddyEntity -> 
                 userRepository.addBookBuddy(id, BookBuddyModel.builder()
-                    .userId(userEntity.getId())
+                    .userId(bookBuddyEntity.getId())
                     .timestamp(LocalDateTime.now())
+                                .commonSubjectCount(bookBuddyEntity.getCommonSubjectCount())
                     .build())
-                .thenReturn(userEntity)
+                .thenReturn(bookBuddyEntity)
             )
-            .map(UserResponse::fromUserEntity);
+            .map(UserBookBuddyResponse::fromBookBuddyEntity);
     }
 
 
@@ -133,9 +137,13 @@ public class UserService {
 
         return userRepository.getUserInfoFromIds
                 (
-                userEntity.getConnections(),
-                userEntity.getRequestWrapper().requests().stream().map(request->request.getUserId()).toArray(String[]::new),
-                userEntity.getBookBuddyWrapper().bookBuddies().stream().map(bookBuddy->bookBuddy.getUserId()).toArray(String[]::new)
+                userEntity.getConversationWrapper().conversations().stream().map(ConversationModel::getUserId).toArray(String[]::new),
+                        userEntity.getConversationWrapper().conversations().stream()
+                                .flatMap(conversationModel -> conversationModel.getMembers().stream())
+                                .toArray(String[]::new),
+                        userEntity.getRequestWrapper().requests().stream().map(RequestModel::getUserId).toArray(String[]::new),
+                userEntity.getBookBuddyWrapper().bookBuddies().stream().map(BookBuddyModel::getUserId).toArray(String[]::new)
+
                 )
                 .collectList()
                 .map(userInfoList -> {
@@ -144,7 +152,9 @@ public class UserService {
                     return DetailedUserResponse.fromUserEntity(userEntity,userEntityMap);
         });
 
-    }           
+    }
+
+
 
     public Mono<DetailedUserResponse> getUserSetup(String id) {
 

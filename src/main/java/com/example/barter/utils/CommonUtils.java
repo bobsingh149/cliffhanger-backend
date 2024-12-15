@@ -7,37 +7,28 @@ import java.util.stream.Stream;
 
 public class CommonUtils {
 
-
-    public static  String[] toArray(List<String> list)
-    {
-        if(list == null)
-        {
+    public static String[] toArray(List<String> list) {
+        if (list == null) {
             return null;
         }
 
-        return list.toArray(new String[0]);
+        return list.toArray(String[]::new);
     }
 
-    public static  String[] toArray(Stream<String> stream)
-    {
-        if(stream == null)
-        {
+    public static String[] toArray(Stream<String> stream) {
+        if (stream == null) {
             return null;
         }
 
         return stream.toArray(String[]::new);
     }
 
-
-
-    public static <T> String convertToJson( T object) {
+    public static <T> String convertToJson(T object) {
 
         try {
             final var jsonStr = new ObjectMapper().writeValueAsString(object);
-            return  jsonStr;
-        }
-        catch (Exception e)
-        {
+            return jsonStr;
+        } catch (Exception e) {
             throw new RuntimeException();
         }
 

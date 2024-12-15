@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 
 @Data
@@ -24,14 +25,12 @@ import java.util.List;
 public class ProductEntity {
 
     @Id
-    private final String id;
+    private final UUID id;
 
     @NonNull
     @Column("userid")
     private final String userId;
 
-    @Column("username")
-    private final String userName;
 
     @NonNull
     private final String title;
@@ -42,7 +41,7 @@ public class ProductEntity {
     private final String[] subjects;
 
     @Column("cover_images")
-    private final String[] coverImages;
+    private String[] coverImages;
 
     @NonNull
     private  long score;
@@ -69,6 +68,12 @@ public class ProductEntity {
     public static record CommentsWrapper (List<CommentModel> comments){}
 
 
+    public void setCoverImage(String image)
+    {
+        if(coverImages.length>=3) {
+            coverImages[2] = image;
+        }
+    }
 
 
     public static ProductEntity fromProductInput(SaveProductInput saveProductInput, MultipartFile file, CloudinaryUtils cloudinaryUtils) throws IOException {

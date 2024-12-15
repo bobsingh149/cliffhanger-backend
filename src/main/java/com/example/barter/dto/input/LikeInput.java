@@ -1,8 +1,10 @@
 package com.example.barter.dto.input;
 
 
+import java.util.UUID;
+
 public record LikeInput(
-    String productId,
+    UUID productId,
     String userId
 ) {}
 

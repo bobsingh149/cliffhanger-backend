@@ -50,9 +50,9 @@ public class ChatService {
 
     }
 
-    public Mono<String> getImageLink(MultipartFile file) throws IOException {
+    public String getImageLink(MultipartFile file) throws IOException {
 
-        return Mono.fromCallable(()-> cloudinaryUtils.uploadFileAndGetLink(file,"chat_images")).subscribeOn(Schedulers.boundedElastic());
+        return cloudinaryUtils.uploadFileAndGetLink(file,"chat_images");
 
     }
 }

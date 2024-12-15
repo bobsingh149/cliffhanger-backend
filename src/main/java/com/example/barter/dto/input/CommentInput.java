@@ -1,9 +1,10 @@
 package com.example.barter.dto.input;
 
-import com.example.barter.dto.model.CommentModel;
+import java.util.UUID;
 
 public record CommentInput(
-    String productId,
-    CommentModel comment
+    UUID productId,
+    String text,
+    String userId
 ) {}
 

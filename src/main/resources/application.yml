@@ -6,11 +6,11 @@ spring:
   flyway:
     enabled: true
     url: jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres
-    user: postgres.crnvwifpkixtlzlcydye
+    user: ${DB_USER}
     password: ${DB_PASSWORD}
   r2dbc:
     url: r2dbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres
-    username: postgres.crnvwifpkixtlzlcydye
+    username: ${DB_USER}
     password: ${DB_PASSWORD}
   servlet:
     multipart:
@@ -43,7 +43,7 @@ googleBooksApi:
 
 cloudinary:
   cloud_name: dllr1e6gn
-  api_key: 172585694199634
+  api_key: ${CLOUDINARY_API_KEY}
   api_secret: ${CLOUDINARY_API_SECRET}
 
 

@@ -1,6 +1,7 @@
 package com.example.barter.controller;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.barter.dto.input.CommentInput;
 import com.example.barter.dto.input.LikeInput;
 import com.example.barter.dto.input.SaveProductInput;
-import com.example.barter.dto.model.FilterType;
 import com.example.barter.dto.response.ApiResponse;
 import com.example.barter.exception.customexception.ImageUploadFailed;
 import com.example.barter.service.BookService;
@@ -30,7 +30,6 @@ import com.example.barter.utils.ControllerUtils.ResponseMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.ServletException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
@@ -49,29 +48,34 @@ public class ProductController {
     }
 
     @GetMapping(path = "/getAllProducts/{userId}")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getAllProduct(
-            @PathVariable String userId, @RequestParam int page, @RequestParam int size,
-            @RequestParam FilterType filterType) {
+    public ResponseEntity<Mono<ApiResponse<Object>>> getAllProduct(
+            @PathVariable String userId, @RequestParam int page, @RequestParam int size) {
         
-        final var response = productService.getAllByPageable(userId, PageRequest.of(page, size), filterType);
+        final var response = productService.getAllByPageable(userId, PageRequest.of(page, size));
         return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
 
-
     @GetMapping(path = "/getProductById/{id}")
-    public ResponseEntity<Mono<ApiResponse<Object>>> getById(@PathVariable String id) {
+    public ResponseEntity<Mono<ApiResponse<Object>>> getById(@PathVariable UUID id) {
         final var response = productService.getById(id);
         return ControllerUtils.mapMonoToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
 
+    @GetMapping(path = "/getUserProfile/{userId}")
+    public ResponseEntity<Mono<ApiResponse<Object>>> getUserProfile(@PathVariable String userId) {
+        final var response = productService.getUserProfile(userId);
+        return ControllerUtils.mapMonoToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
+    }
+
     @GetMapping(path = "/getProductByUserId/{userId}")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getByUserId(@PathVariable String userId) {
+    public ResponseEntity<Mono<ApiResponse<Object>>> getByUserId(@PathVariable String userId) {
         final var response = productService.getByUserId(userId);
         return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
 
+
     @DeleteMapping(path = "/deleteProductById/{id}")
-    public ResponseEntity<Mono<ApiResponse<Object>>> deleteById(@PathVariable String id) {
+    public ResponseEntity<Mono<ApiResponse<Object>>> deleteById(@PathVariable UUID id) {
         final var response = productService.deleteById(id);
         return ControllerUtils.mapMonoToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
@@ -86,10 +90,10 @@ public class ProductController {
 
 
     @GetMapping(path = "/getSearchResults")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getSearchResults(@RequestParam String q) throws IOException {
+    public ResponseEntity<Mono<ApiResponse<Object>>> getSearchResults(@RequestParam String q) throws IOException {
         q = q.trim();
         final var response = productService.getSearchResults(q);
-        return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
+        return ControllerUtils.mapMonoToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
 
     @PostMapping("/postComment")
@@ -105,31 +109,39 @@ public class ProductController {
     }
 
     @GetMapping(path = "/getByBarterFilter")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getByBarterFilter(
-            @RequestParam String city, 
+    public ResponseEntity<Mono<ApiResponse<Object>>> getByBarterFilter(
             @RequestParam String userId,
             @RequestParam int page,
             @RequestParam int size) {
-        final var response = productService.getByBarterFilter(city, userId, PageRequest.of(page, size));
+        final var response = productService.getByBarterFilter(userId, PageRequest.of(page, size));
         return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
 
     @GetMapping(path = "/getPostsBySearch")
-    public ResponseEntity<Flux<ApiResponse<Object>>> getPostsBySearch(
+    public ResponseEntity<Mono<ApiResponse<Object>>> getPostsBySearch(
             @RequestParam String q,
-            @RequestParam String userId,
             @RequestParam int page,
             @RequestParam int size) {
-        final var response = productService.getBySearch(q, userId, PageRequest.of(page, size));
+        final var response = productService.getBySearch(q,PageRequest.of(page, size));
         return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
 
     @PostMapping("/likeComment")
     public ResponseEntity<Mono<ApiResponse<Object>>> likeComment(
-            @RequestParam String productId,
+            @RequestParam UUID productId,
             @RequestParam String commentId) {
         final var response = productService.incrementCommentLikeCount(productId, commentId);
         return ControllerUtils.mapMonoToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
+    }
+
+
+
+
+    @GetMapping("/getComments/{id}")
+    public ResponseEntity<Mono<ApiResponse<Object>>> getComments(@PathVariable UUID id)
+    {
+        final var response = productService.getComments(id);
+        return ControllerUtils.mapMonoToResponseEntity(response,ResponseMessage.success,HttpStatus.OK);
     }
 
 }

@@ -1,12 +1,13 @@
 package com.example.barter.dto.response;
 
 import com.example.barter.dto.entity.UserEntity;
+import com.example.barter.dto.model.RequestModel;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 @Data
 @Builder
@@ -22,6 +23,18 @@ public class DetailedUserResponse {
     private final List<ConversationResponse> conversations;
     private final List<RequestResponse> requests;
 
+    public static List<RequestResponse> sortRequests(List<RequestModel> requests, Map<String, UserEntity> userMap)
+    {
+        List<RequestResponse> requestResponses = new java.util.ArrayList<>(requests.stream()
+                .map(request -> RequestResponse.builder()
+                        .userResponse(UserResponse.fromUserEntity(userMap.get(request.getUserId())))
+                        .timestamp(request.getTimestamp())
+                        .build())
+                .toList());
+        
+        Collections.sort(requestResponses);
+        return requestResponses;
+    }
 
     public static DetailedUserResponse fromUserEntity(UserEntity userEntity, Map<String, UserEntity> userMap) {
         return DetailedUserResponse.builder()
@@ -38,16 +51,15 @@ public class DetailedUserResponse {
                         .conversationId(conversation.getConversationId())
                         .groupName(conversation.getGroupName())
                         .userResponse(UserResponse.fromUserEntity(userMap.get(conversation.getUserId())))
-                        .users(conversation.getUsers().stream().map(id->UserResponse.fromUserEntity(userMap.get(id))).toList()).build()
+                        .members(conversation.getMembers().stream().map(id->UserResponse.fromUserEntity(userMap.get(id))).toList()).build()
                 ).toList())
                 .bookBuddies(userEntity.getBookBuddyWrapper().bookBuddies().stream()
-                        .map(bookBuddy->BookBuddyResponse.builder().userResponse(UserResponse.fromUserEntity(userMap.get(bookBuddy.getUserId()))).timestamp(bookBuddy.getTimestamp()).build()).toList())
-                .requests(userEntity.getRequestWrapper().requests().stream()
-                    .map(request -> RequestResponse.builder()
-                        .userResponse(UserResponse.fromUserEntity(userMap.get(request.getUserId())))
-                        .timestamp(request.getTimestamp())
-                        .build())
-                    .toList())
+                        .map(bookBuddy->BookBuddyResponse.builder().
+                        userResponse(UserResponse.fromUserEntity(userMap.get(bookBuddy.getUserId())))
+                        .timestamp(bookBuddy.getTimestamp())
+                        .commonSubjectCount(bookBuddy.getCommonSubjectCount())
+                        .build()).toList())
+                .requests(sortRequests(userEntity.getRequestWrapper().requests(),userMap))
                 .build();
     }
 }

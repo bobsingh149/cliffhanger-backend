@@ -9,7 +9,7 @@ import java.util.List;
 public class ConversationResponse {
     private final String conversationId;
     private final boolean isGroup;
-    private final List<UserResponse> users;
+    private final List<UserResponse> members;
     private final UserResponse userResponse;
     private final String groupName;
     private final String groupImage;

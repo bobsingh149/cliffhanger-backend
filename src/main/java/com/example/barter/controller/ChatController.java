@@ -34,9 +34,10 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @PostMapping(value = "/api/chat/uploadImage",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<String> getImageLink(@RequestParam("file") MultipartFile file) throws IOException {
-        return chatService.getImageLink(file);
+    @PostMapping(value = "/api/chat/uploadImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Object>> getImageLink(@RequestParam("file") MultipartFile file) throws IOException {
+        final var response = chatService.getImageLink(file);
+        return ControllerUtils.mapToResponseEntity(response, ControllerUtils.ResponseMessage.success, HttpStatus.OK);
     }
 
 
