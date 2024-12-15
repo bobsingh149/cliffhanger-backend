@@ -1,10 +1,12 @@
 package com.example.barter.dto.response;
 
 
-import com.example.barter.dto.api.BooksResponse;
-import com.example.barter.exception.customexception.InvalidIsbnException;
+import com.example.barter.dto.api.GoggleBooksApiResponse;
+import com.example.barter.dto.api.OpenLibraryBooksQueryResponse;
+import com.example.barter.exception.customexception.OpenLibraryBooksApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,12 +20,13 @@ import java.util.stream.Stream;
 public final class ProductResponse {
 
 
-
+    
     private final String title;
     private final List<String> authors;
     private final List<String> subjects;
-    private final List<String> coverImages;
+    private List<String> coverImages;
     private final long score;
+    private final String description;
 
     public static List<String> getImages(List<String> isbnList) {
 
@@ -40,9 +43,9 @@ public final class ProductResponse {
 
     public static List<ProductResponse> fromJson(String jsonStr) {
 
-        try {
-            BooksResponse booksResponseList = new ObjectMapper().readValue(jsonStr, BooksResponse.class);
-            return booksResponseList.getDocs().stream().map((BooksResponse.Docs doc) ->
+         try {
+            OpenLibraryBooksQueryResponse booksResponseList = new ObjectMapper().readValue(jsonStr, OpenLibraryBooksQueryResponse.class);
+            return booksResponseList.getDocs().stream().map((OpenLibraryBooksQueryResponse.Docs doc) ->
                             ProductResponse.builder()
                                     .title(doc.getTitle())
                     .coverImages(getImages(doc.getIsbn()))
@@ -53,12 +56,12 @@ public final class ProductResponse {
                     .toList();
 
         } catch (JsonProcessingException e) {
-            throw new InvalidIsbnException(e.getMessage());
+            throw new OpenLibraryBooksApiException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException("failed to get corresponding book info");
 
         }
 
+
     }
 }
-

@@ -2,6 +2,7 @@ package com.example.barter.dto.entity;
 
 
 import com.example.barter.dto.input.SaveProductInput;
+import com.example.barter.dto.model.CommentModel;
 import com.example.barter.dto.model.PostCategory;
 import com.example.barter.utils.CloudinaryUtils;
 import lombok.Builder;
@@ -14,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 
 @Data
@@ -22,7 +25,7 @@ import java.time.LocalDateTime;
 public class ProductEntity {
 
     @Id
-    private final String id;
+    private final UUID id;
 
     @NonNull
     @Column("userid")
@@ -37,27 +40,45 @@ public class ProductEntity {
 
     private final String[] subjects;
 
-    @Column("coverimages")
-    private final String[] coverImages;
+    @Column("cover_images")
+    private String[] coverImages;
 
     @NonNull
     private  long score;
 
-    @Column("createdat")
-    private final LocalDateTime createdAt;
 
     private final String caption;
 
-    @Column("postimage")
+    @Column("post_image")
     private final String postImage;
 
     private final PostCategory category;
 
 
+    private final String[] likes;
+
+
+    @Column("comments")
+    private final CommentsWrapper commentsWrapper;
+
+    @Column("created_at")
+    private final LocalDateTime createdAt;
+
+    @Builder
+    public static record CommentsWrapper (List<CommentModel> comments){}
+
+
+    public void setCoverImage(String image)
+    {
+        if(coverImages.length>=3) {
+            coverImages[2] = image;
+        }
+    }
+
 
     public static ProductEntity fromProductInput(SaveProductInput saveProductInput, MultipartFile file, CloudinaryUtils cloudinaryUtils) throws IOException {
 
-        final String imageLink = file != null ? cloudinaryUtils.uploadFileAndGetLink(file, "postImages") : null;
+        final String imageLink = file != null ? cloudinaryUtils.uploadFileAndGetLink(file, "post_images") : null;
 
         return ProductEntity.builder()
                 .userId(saveProductInput.userId())

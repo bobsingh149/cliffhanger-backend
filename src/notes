@@ -1,0 +1,231 @@
+CTE is like a table and unnest is like column so unnest(address_array) array as address would become
+address column and normalization thing will happen nultiple rows corresponding to
+each item of the array and now the column would be address insted
+
+webflux work by registering the callback and executing when result is available without blocking the main thread event loop which listens to changes
+and @async works by juts using a separate thread for async function
+
+Async just means 1 thing don't wait for i/o make request and move to next thing
+like click a button then click another its responsive and when results come
+dp the actions that were described
+
+use ResposneEntitiy for the response
+RestController for API
+RequestMapping
+Service class for the database
+@autowired same as constructor injection
+Spring Data extends CurdRepository
+
+
+Tight vs loose coupling
+
+Loose:- object being instantiated and directly be used in other class
+change in 1 class affects other
+Change in 1 class doesn't affect other
+So lets say u r passing Laptop brand,
+U create a abstract class and use that as child classes will
+have all these defined now lets say u r using different brand
+so everything in service class will remain same its still the same
+LaptopBrand service class but different implementation
+In tight coupling we would have to create a different object and the pass it
+so we are changing code but with the constructor injection all we change is
+the spring boot configuration and they manage it for us
+
+Tight:- No directly relation rather using a middle interface b/w them
+which communicate
+
+To avoid the tight coupling we do dependency injection
+@autowired
+@Component/@service
+
+annotations are just like putting tags on method or class and then its use
+later like if this tag on this mehtod or class do this
+
+
+https://stackoverflow.com/questions/69293859/parallel-flux-vs-flux-in-project-reactor
+
+Main advantage of async shines in I/O bound tasks where
+we are only sending and receiving and in b/w are not doing anything
+so in async code we are essentially not tying up the thread waiting
+
+
+Single thread
+I/O lot of waiting but not much cpu work
+Flux.range(0,100).subscribeOn(Schedulers.boundedElastic()).flatMap(i -> webClientCallApi(i)).collecttoList() // or subscribe somehow
+
+
+Parallel
+Cpu extensive work
+Flux.range(0,100).parallel().runOn(Schedulers.boundedElastic()).flatMap(i -> webClientCallApi(i)).sequential().collecttoList();
+
+In reactive programming with Spring WebFlux and R2DBC, callbacks are
+central to handling asynchronous operations. When an I/O operation is initiated,
+it returns a reactive stream (Mono or Flux). This stream allows registration of
+callbacks that are executed upon completion of the I/O operation.
+The actual I/O is performed in the background, and the initiating thread is
+free to handle other tasks. Once the I/O completes, an event triggers
+the execution of the registered callbacks, allowing the application to
+continue processing the result. This mechanism ensures efficient use of
+resources, better scalability, and responsiveness.
+
+field, setter and constructor injections
+
+subscribe -> like then, when item inside Mono is available register a callback don't block thread
+block ->  block the thread till its available
+
+The transformation defined by map is not executed instantly when map is called.
+Instead, it is executed when the Mono is subscribed to part of pipeline
+
+When you return a Mono<String> from a Spring WebFlux controller,
+Spring takes care of subscribing to the Mono, waiting for its completion,
+and then serializing the result into an HTTP response that is sent back to the client.
+This allows for efficient, non-blocking handling of asynchronous operations,
+making full use of reactive programming principles.
+
+so thread is never blocked waiting for I/O request is initiated and callback is registered
+and when data is available it is returned
+
+Wrapping in Mono<T> or Flux<T> basically does not allow you to use value inside
+till u suscribe to it or block
+
+Subscribe is only called once in the end by controller
+till then all the transformations to it are applied through map
+
+
+map: Transforms the item emitted by a Mono or Flux by applying a synchronous function to it. The result of this function is directly emitted.
+flatMap: Transforms the item emitted by a Mono or Flux by applying a function that returns another Mono or Flux. It then flattens these nested publishers into a single Mono or Flux.
+
+
+Return type of controller should be Mono for it to subscribe
+
+
+response.subscribeOn(Schedulers.boundedElastic()).map()
+.parallel().runOn(Schedulers.parallel()).flatMap().sequential().subscribeOn()
+
+
+ingleton has a constructor which supports DI so you can configure it through the service collection. Static classes has no constructor so you cant inject services.
+
+Singletons are mockable when used in other classes, static classes are not.
+
+Static classes cant be inherited, they are sealed by default. They also cant inherit any other class.
+
+Times I favor static over singleton is when I have no dependencies, like converter classes, helper classes or extension methods. Otherwise I tend to avoid them whenever possible because they add a tight coupling to an implementation.
+
+[13:04, 11/8/2024] Dushyant Singh: @Component means we don't have to do @Bean in @Configuration class to expose it as bean and all @Service @Reporsiory have @Conponents in them,            ApplicationContext ctx = new AnnotationConfigApplicationContext(someConfigClass); It manages the IOC and all the beans could also be crated with xml
+[13:04, 11/8/2024] Dushyant Singh: So, to sum it up, Spring framework’s goal is to 'springify' available Java functionality, preparing it for dependency injection and therefore making the APIs easier to use in a Spring context.
+[13:05, 11/8/2024] Dushyant Singh: To give you an in-depth understanding of Spring Boot and its AutoConfigurations.
+
+ To show you how Spring Boot automagically boots up a Tomcat server whenever you run a main() method.
+
+ To show you how Spring Boot's properties magic works. You specify a couple of properties and suddenly have working database access.
+
+ @SpringBootApplication does auto configuration meaning it is basically like having
+ an ApplicationCOntext passing a Configuration class then using
+ @ComponentScan and passing the package name
+
+ await just means what should go in then or map if nothing after await simply means
+ nothing will be executed after it, but async call will never block await is to just define
+ what should happen after it no i/o waiting will happen no matter what
+
+
+Key Characteristics of the Event-Driven Model:
+Events: The central concept is that something happens (an event), and the system responds to it. Events can be anything that the system is interested in, such as a user input, I/O operations, or messages from other systems.
+
+Event Loops: In many event-driven systems, an event loop runs continuously, listening for events and dispatching them to the appropriate event handlers. The event loop can manage multiple incoming events and dispatch them efficiently without blocking.
+
+Event Handlers/Callbacks: When an event occurs, it triggers an event handler or callback. This handler is a function or method specifically written to respond to that event. Handlers are usually registered in advance to be called when specific events occur.
+
+Non-blocking: In an event-driven system, events are processed asynchronously. The system doesn’t wait (block) for an operation (such as I/O) to complete. Instead, it continues executing other tasks, and when the event is completed (e.g., data arrives or an operation finishes), it triggers the corresponding handler.
+
+Asynchronous Execution: Event-driven systems typically work with asynchronous tasks. Rather than handling tasks in a linear, step-by-step way, the system moves on and waits for events (such as I/O completion or user input) to trigger responses.
+
+Aspect	Event Loop	Worker Thread
+Purpose	Handles non-blocking I/O and asynchronous events	Handles blocking or CPU-intensive tasks
+Threading Model	Usually runs on a single thread	Runs in a separate thread or thread pool
+Task Type	Non-blocking I/O-bound tasks (e.g., HTTP requests)	Blocking tasks (e.g., CPU-heavy computations, file I/O)
+Concurrency	Provides high concurrency for I/O-bound tasks	Provides parallelism for CPU-bound tasks
+Blocking	Non-blocking, continues handling events	Handles blocking operations in parallel
+Usage in Systems	Central to event-driven systems like Node.js, WebFlux	Used to offload heavy tasks from the event loop
+Example Tasks	Network requests, database queries, file reads	Image processing, data compression, synchronous file I/O
+
+Its event loop job to listen to all changes, register callback and know when i/o is completed
+worker thread is just a thread poll for actual tasks like cpu bound or i/o bound so
+
+
+No, worker threads are not meant to wait for I/O tasks in an event-driven architecture. The key point of using worker threads is to handle blocking or CPU-intensive tasks while keeping the main event loop free to process other incoming requests. Worker threads are generally used for CPU-bound tasks or for synchronous, blocking I/O operations that can't be done asynchronously.
+
+Here's how it works:
+
+1. Event Loop Handles Non-Blocking I/O
+The event loop is responsible for managing non-blocking I/O operations. When an I/O operation (like a network request or file read) is initiated, the event loop starts the operation and moves on to other tasks without waiting for the result.
+
+The actual I/O task is delegated to the operating system or an underlying mechanism (like epoll in Linux or IOCP in Windows), which will notify the event loop when the I/O operation is complete. This is why the event loop is efficient for I/O-bound tasks—it doesn’t block or wait for results.
+
+2. Worker Threads Handle Blocking or CPU-Intensive Tasks
+When a task cannot be handled asynchronously, such as a CPU-heavy computation or a blocking I/O operation (e.g., a database call using an old, non-asynchronous driver), it is offloaded to worker threads. Worker threads are designed to handle tasks that would otherwise block the event loop.
+
+In this case, the worker thread does wait for the blocking task to finish, but the main event loop is free to continue processing other tasks. However, the waiting happens in the worker thread, not in the event loop thread.
+
+Example of What Worker Threads Handle:
+Blocking I/O: If you have a task like reading a large file using a synchronous file system API (i.e., it does not return a promise or future), the worker thread would be used to handle this task.
+CPU-Intensive Tasks: Tasks like image processing, encryption, or large data transformation (that take significant time) would block the event loop if not offloaded to a worker thread.
+Why Don’t Worker Threads Wait for I/O?
+Non-Blocking I/O tasks, by nature, should not block any thread (not even worker threads). When an I/O operation can be done asynchronously, the worker thread doesn't handle it at all—the event loop simply manages it and receives a callback when the operation is done.
+Worker threads are more for CPU-bound tasks or blocking I/O that cannot be made non-blocking or asynchronous by nature (e.g., synchronous file or network APIs).
+Practical Example:
+In Node.js, the event loop handles non-blocking tasks like file reading or HTTP requests. But if you use a blocking file read (like fs.readFileSync), Node.js will offload it to a worker thread, which will wait for the I/O to complete.
+
+javascript
+Copy code
+const fs = require('fs');
+
+// Non-blocking I/O: handled by the event loop, doesn't block anything
+fs.readFile('file.txt', 'utf8', (err, data) => {
+    if (err) throw err;
+    console.log(data); // Event loop will handle the callback
+});
+
+// Blocking I/O: uses a worker thread, which waits for the task to finish
+const data = fs.readFileSync('file.txt', 'utf8'); // Event loop is free, worker thread is blocked
+console.log(data);
+In the non-blocking example (fs.readFile), the event loop kicks off the I/O operation and does not block or wait. In the blocking example (fs.readFileSync), a worker thread from the internal thread pool would handle the file reading, blocking that worker thread while waiting for the operation to complete. Meanwhile, the event loop remains free.
+
+Summary:
+Event loop handles non-blocking I/O, starting the operation and moving on without waiting. The OS or framework handles the I/O and notifies the event loop when it's done.
+Worker threads handle blocking tasks or CPU-intensive operations. If a task is synchronous (blocking), the worker thread will wait for it to complete, but the main event loop will not be blocked by this.
+This design allows the event loop to efficiently handle a large number of I/O-bound tasks while offloading blocking work to worker threads when necessary.
+
+https://chatgpt.com/c/6716a4a6-b330-8013-9b4d-062cf296fe1a
+
+Thread Pool:
+
+When you annotate a method with @Async, Spring executes that method in a separate thread from a thread pool. By default, Spring uses a SimpleAsyncTaskExecutor, but you can configure it to use a ThreadPoolTaskExecutor or another implementation for better performance and control over thread management.
+Blocking Behavior:
+
+Unlike the event loop model, where I/O operations are non-blocking and the main thread can continue processing other requests while waiting for I/O to complete, @Async methods can still be blocking. If the asynchronous method performs a blocking task (like waiting for a response from a database or an external service), the thread executing that method will be blocked until the task completes. However, since it runs in a separate thread, it won't block the main application thread.
+Completion Handling:
+
+@Async does not provide built-in support for reactive programming constructs like Mono and Flux. Instead, it typically returns a Future or CompletableFuture, which can be used to obtain the result of the asynchronous computation, but it does not inherently support chaining or backpressure like reactive streams.
+
+How It Differs from Event Loop:
+In the example above, when performTask() is called, it executes in a separate thread, and if it were to block (for example, by sleeping for 2 seconds), it would do so in that separate thread.
+In contrast, an event-driven model like that used in Spring WebFlux would allow the main application thread to continue processing other requests while waiting for the result of the I/O operation without blocking.
+
+The key takeaway is that @Async just moves blocking operations to a different thread - it doesn't make them non-blocking. For true non-blocking I/O, you should consider using reactive programming approaches like Spring WebFlux with WebClient.
+
+Async gives u a feel of parallel if u doing i/o
+so there are 5 i/o calls it will execute all of them one by one
+because only work it has to is register callback
+but if task is cpu bounded then u have to use actual multiple thread
+because there is real work other than waiting
+
+in node js eventloop is single threaded but some libs spport worker threads
+
+Mono.fromCallable is like @Async to offload blocking i/o or expensive task to other thread
+it will still block that thread but the eventloop will be free to execute other tasks
+
+1) using non blocking operation with single thread and
+2) using Mono from callable or Async
+In both cases event loop is not blocked
+in first case there is nothing to block
+and in second case seperate thread in blocked not event loop
