@@ -908,7 +908,7 @@
       "description": "Local server"
     },
     {
-      "url": "https://api.cliffhanger.in",
+      "url": "https://barter-backend-w0ef.onrender.com",
       "description": "Production server"
     }
   ]

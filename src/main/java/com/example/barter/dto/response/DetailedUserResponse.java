@@ -57,7 +57,7 @@ public class DetailedUserResponse {
                         .map(bookBuddy->BookBuddyResponse.builder().
                         userResponse(UserResponse.fromUserEntity(userMap.get(bookBuddy.getUserId())))
                         .timestamp(bookBuddy.getTimestamp())
-                        .commonSubjectCount(bookBuddy.getCommonSubjectCount())
+                        .commonSubjectCount( bookBuddy.getCommonSubjectCount()*3 + 10)
                         .build()).toList())
                 .requests(sortRequests(userEntity.getRequestWrapper().requests(),userMap))
                 .build();
