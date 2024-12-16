@@ -92,11 +92,9 @@ public class UserService {
         return conversationModel.isGroup() 
             ? userRepository.saveConversationGroup(id, conversationModel)
             : userRepository.saveConversation(id, conversationModel)
-                .onErrorResume(error -> userRepository.removeConversation(id, conversationModel.getConversationId()))
                 .then(userRepository.saveConversation(otherId, otherConversationModel))
                 .onErrorResume(error -> userRepository.removeConversation(id, conversationModel.getConversationId()))
-                .then(userRepository.removeRequest(id, otherId))
-                .then(userRepository.removeRequest(otherId, id));
+                .then(userRepository.removeRequest(id, otherId));
     }
 
     public Mono<Void> saveRequest(SaveRequestInput saveRequestInput) {
