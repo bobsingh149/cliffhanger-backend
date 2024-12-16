@@ -93,7 +93,6 @@ public class UserService {
             ? userRepository.saveConversationGroup(id, conversationModel)
             : userRepository.saveConversation(id, conversationModel)
                 .then(userRepository.saveConversation(otherId, otherConversationModel))
-                .onErrorResume(error -> userRepository.removeConversation(id, conversationModel.getConversationId()))
                 .then(userRepository.removeRequest(id, otherId));
     }
 
