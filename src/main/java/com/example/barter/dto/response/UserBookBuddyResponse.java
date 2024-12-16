@@ -18,6 +18,6 @@ public class UserBookBuddyResponse {
 
 
     public static UserBookBuddyResponse fromBookBuddyEntity(BookBuddyEntity bookBuddyEntity){
-        return UserBookBuddyResponse.builder().id(bookBuddyEntity.getId()).name(bookBuddyEntity.getName()).age(bookBuddyEntity.getAge()).bio(bookBuddyEntity.getBio()).city(bookBuddyEntity.getCity()).profileImage(bookBuddyEntity.getProfileImage()).commonSubjectCount(bookBuddyEntity.getCommonSubjectCount()*3 + 10omm).build();
+        return UserBookBuddyResponse.builder().id(bookBuddyEntity.getId()).name(bookBuddyEntity.getName()).age(bookBuddyEntity.getAge()).bio(bookBuddyEntity.getBio()).city(bookBuddyEntity.getCity()).profileImage(bookBuddyEntity.getProfileImage()).commonSubjectCount(bookBuddyEntity.getCommonSubjectCount()*3 + 10).build();
     }
 } 
