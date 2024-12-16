@@ -2,8 +2,11 @@ package com.example.barter.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
+import com.example.barter.exception.customexception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -79,24 +82,21 @@ public class UserService {
         return userRepository.deleteById(id);
     }
 
-    public Mono<Void> saveConnection(String id,SaveConversationInput saveConversationInput) {
-
+    public Mono<Void> saveConnection(String id, SaveConversationInput saveConversationInput) {
         saveConversationInput.setConversationId(UUID.randomUUID().toString());
-
         ConversationModel conversationModel = ConversationModel.fromSaveConversationInput(saveConversationInput);
-
         String otherId = conversationModel.getUserId();
-
         ConversationModel otherConversationModel = ConversationModel.fromSaveConversationInput(saveConversationInput);
         otherConversationModel.setUserId(id);
 
-
-        return conversationModel.isGroup() ? userRepository.saveConversationGroup(id,conversationModel)
-
-                :    userRepository.saveConversation(id,conversationModel)
-                    .onErrorResume(error->userRepository.removeConversation(id,conversationModel.getConversationId()))
-                    .then(userRepository.saveConversation(otherId,otherConversationModel))
-                    .onErrorResume(error->userRepository.removeConversation(id,conversationModel.getConversationId()));
+        return conversationModel.isGroup() 
+            ? userRepository.saveConversationGroup(id, conversationModel)
+            : userRepository.saveConversation(id, conversationModel)
+                .onErrorResume(error -> userRepository.removeConversation(id, conversationModel.getConversationId()))
+                .then(userRepository.saveConversation(otherId, otherConversationModel))
+                .onErrorResume(error -> userRepository.removeConversation(id, conversationModel.getConversationId()))
+                .then(userRepository.removeRequest(id, otherId))
+                .then(userRepository.removeRequest(otherId, id));
     }
 
     public Mono<Void> saveRequest(SaveRequestInput saveRequestInput) {
@@ -134,6 +134,11 @@ public class UserService {
 
 
     public Mono<DetailedUserResponse> fillUserInfo(UserEntity userEntity) {
+
+        if(userEntity==null)
+        {
+            throw new UserNotFoundException("user not found");
+        }
 
         return userRepository.getUserInfoFromIds
                 (
