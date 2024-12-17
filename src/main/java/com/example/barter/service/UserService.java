@@ -85,7 +85,9 @@ public class UserService {
     public Mono<Void> saveConnection(String id, SaveConversationInput saveConversationInput) {
         String conversationId = saveConversationInput.isGroup() 
             ? UUID.randomUUID().toString()
-            : id + "-" + saveConversationInput.getUserId();
+            : (id.compareTo(saveConversationInput.getUserId()) < 0 
+                ? id + "-" + saveConversationInput.getUserId()
+                : saveConversationInput.getUserId() + "-" + id);
         
         saveConversationInput.setConversationId(conversationId);
         
