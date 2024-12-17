@@ -53,7 +53,16 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
 
     @Query("""
             update users
-            set conversations = conversations || jsonb_build_array(:conversationModel)
+            set conversations = 
+            case 
+                when not exists (
+                    select 1 
+                    from jsonb_array_elements(conversations) as conversation 
+                    where (conversation->>'conversationId') = (:conversationModel->>'conversationId')
+                )
+                then conversations || jsonb_build_array(:conversationModel)
+                else conversations
+            end
             where id = :id;
             """)
     Mono<Void> saveConversation(String id, ConversationModel conversationModel);
@@ -82,10 +91,13 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
 
     @Query("""
             update users
-            set requests = (
-                select jsonb_agg(request)
-                from jsonb_array_elements(requests) request
-                where (request->>'userId') != :requestId
+            set requests = coalesce(
+                (
+                    select jsonb_agg(request)
+                    from jsonb_array_elements(requests) request
+                    where (request->>'userId') != :requestId
+                ),
+                '[]'::jsonb
             )
             where id = :id
             """)
@@ -253,10 +265,13 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
 
     @Query("""
         update users
-        set conversations = (
-            select jsonb_agg(conversation)
-            from jsonb_array_elements(conversations) as conversation
-            where (conversation->>'conversationId') != :conversationId
+        set conversations = coalesce(
+            (
+                select jsonb_agg(conversation)
+                from jsonb_array_elements(conversations) as conversation
+                where (conversation->>'conversationId') != :conversationId
+            ),
+            '[]'::jsonb
         )
         where id = :id
         """)
