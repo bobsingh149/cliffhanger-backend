@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.example.barter.exception.customexception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,7 @@ import com.example.barter.dto.model.RequestModel;
 import com.example.barter.dto.response.DetailedUserResponse;
 import com.example.barter.dto.response.UserBookBuddyResponse;
 import com.example.barter.dto.response.UserResponse;
+import com.example.barter.exception.customexception.UserNotFoundException;
 import com.example.barter.repository.UserRepository;
 import com.example.barter.utils.CloudinaryUtils;
 
@@ -83,7 +83,12 @@ public class UserService {
     }
 
     public Mono<Void> saveConnection(String id, SaveConversationInput saveConversationInput) {
-        saveConversationInput.setConversationId(UUID.randomUUID().toString());
+        String conversationId = saveConversationInput.isGroup() 
+            ? UUID.randomUUID().toString()
+            : id + "-" + saveConversationInput.getUserId();
+        
+        saveConversationInput.setConversationId(conversationId);
+        
         ConversationModel conversationModel = ConversationModel.fromSaveConversationInput(saveConversationInput);
         String otherId = conversationModel.getUserId();
         ConversationModel otherConversationModel = ConversationModel.fromSaveConversationInput(saveConversationInput);
