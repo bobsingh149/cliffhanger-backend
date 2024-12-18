@@ -32,7 +32,7 @@ public class CloudinaryUtils {
     public  String uploadFileAndGetLink(MultipartFile file,String folderName) throws IOException {
 
         final var transformation = new Transformation()
-                .aspectRatio("4:5")
+                .aspectRatio("7:8")
                 .crop("fill")
                 .gravity("auto");
 
@@ -59,7 +59,7 @@ public class CloudinaryUtils {
     
     public String uploadFromNetworkAndGetLink(String imageLink, String folderName) throws IOException { 
         final var transformation = new Transformation()
-            .aspectRatio("4:5")
+            .aspectRatio("7:8")
             .crop("fill")
             .gravity("auto");
 
