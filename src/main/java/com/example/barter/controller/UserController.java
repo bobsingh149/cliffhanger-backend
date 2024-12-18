@@ -62,12 +62,24 @@ public class UserController {
     }
 
     @PostMapping("/saveConnection/{id}")
-    public ResponseEntity<Mono<ApiResponse<Object>>> saveConnection( @PathVariable String id,@RequestBody SaveConversationInput saveConversationInput) throws UserNotFoundException {
+    public ResponseEntity<Mono<ApiResponse<Object>>> saveConnection( @PathVariable String id,@RequestBody SaveConversationInput saveConversationInput) throws UserNotFoundException, IOException {
         if (id == null || id.trim().isEmpty()) {
             throw new UserNotFoundException("User ID cannot be empty");
         }
-        final var response = userService.saveConnection(id,saveConversationInput);
+        final var response = userService.saveConnection(id,saveConversationInput,null);
         return ControllerUtils.mapMonoToResponseEntity(response,ResponseMessage.success,HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/saveGroup/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Mono<ApiResponse<Object>>> saveGroup(@PathVariable String id,
+                                                             @RequestParam(value = "file", required = false) MultipartFile file,
+                                                             @RequestParam("data") String data) throws IOException, UserNotFoundException {
+        if (id == null || id.trim().isEmpty()) {
+            throw new UserNotFoundException("User ID cannot be empty");
+        }
+        final SaveConversationInput saveConversationInput = objectMapper.readValue(data, SaveConversationInput.class);
+        final var response = userService.saveConnection(id, saveConversationInput,file);
+        return ControllerUtils.mapMonoToResponseEntity(response, ResponseMessage.success, HttpStatus.CREATED);
     }
 
     @GetMapping("/getUserById/{id}")

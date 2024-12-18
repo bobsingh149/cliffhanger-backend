@@ -2,6 +2,7 @@ package com.example.barter.dto.model;
 
 
 import com.example.barter.dto.input.SaveConversationInput;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public class ConversationModel
 {
     private final String conversationId;
+    @JsonProperty("isGroup")
     private final boolean isGroup;
     private final List<String> members;
     private String userId;
