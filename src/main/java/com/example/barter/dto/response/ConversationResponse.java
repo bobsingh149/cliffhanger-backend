@@ -1,5 +1,6 @@
 package com.example.barter.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 @Builder
 public class ConversationResponse {
     private final String conversationId;
+    @JsonProperty("isGroup")
     private final boolean isGroup;
     private final List<UserResponse> members;
     private final UserResponse userResponse;

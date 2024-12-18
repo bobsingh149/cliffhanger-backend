@@ -82,14 +82,22 @@ public class UserService {
         return userRepository.deleteById(id);
     }
 
-    public Mono<Void> saveConnection(String id, SaveConversationInput saveConversationInput) {
+    public Mono<Void> saveConnection(String id, SaveConversationInput saveConversationInput, MultipartFile file) throws IOException {
+
+
+
         String conversationId = saveConversationInput.isGroup() 
             ? UUID.randomUUID().toString()
             : (id.compareTo(saveConversationInput.getUserId()) < 0 
                 ? id + "-" + saveConversationInput.getUserId()
                 : saveConversationInput.getUserId() + "-" + id);
-        
+
+        final String groupImage = file != null
+                ?cloudinaryUtils.uploadFileAndGetLink(file,"group_images")
+                :null;
+
         saveConversationInput.setConversationId(conversationId);
+        saveConversationInput.setGroupImage(groupImage);
         
         ConversationModel conversationModel = ConversationModel.fromSaveConversationInput(saveConversationInput);
         String otherId = conversationModel.getUserId();
@@ -97,7 +105,7 @@ public class UserService {
         otherConversationModel.setUserId(id);
 
         return conversationModel.isGroup() 
-            ? userRepository.saveConversationGroup(id, conversationModel)
+            ? userRepository.saveConversationGroup(conversationModel,conversationModel.getMembers().toArray(String[]::new))
             : userRepository.saveConversation(id, conversationModel)
                 .then(userRepository.saveConversation(otherId, otherConversationModel))
                 .then(userRepository.removeRequest(id, otherId));

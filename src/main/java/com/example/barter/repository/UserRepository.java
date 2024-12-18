@@ -70,9 +70,9 @@ public interface UserRepository extends R2dbcRepository<UserEntity, String> {
     @Query("""
             update users
             set conversations = conversations || jsonb_build_array(:conversationModel)
-            where id = :id;
+            where id = any(:memberIds);
             """)
-    Mono<Void> saveConversationGroup(String id, ConversationModel conversationModel);
+    Mono<Void> saveConversationGroup(ConversationModel conversationModel, String[] memberIds);
 
     @Query("""
             update users

@@ -50,7 +50,7 @@ public class DetailedUserResponse {
                         .groupImage(conversation.getGroupImage())
                         .conversationId(conversation.getConversationId())
                         .groupName(conversation.getGroupName())
-                        .userResponse(UserResponse.fromUserEntity(userMap.get(conversation.getUserId())))
+                        .userResponse(userMap.get(conversation.getUserId())!= null ?UserResponse.fromUserEntity(userMap.get(conversation.getUserId())):null)
                         .members(conversation.getMembers().stream().map(id->UserResponse.fromUserEntity(userMap.get(id))).toList()).build()
                 ).toList())
                 .bookBuddies(userEntity.getBookBuddyWrapper().bookBuddies().stream()
