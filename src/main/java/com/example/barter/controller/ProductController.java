@@ -122,6 +122,7 @@ public class ProductController {
             @RequestParam String q,
             @RequestParam int page,
             @RequestParam int size) {
+        q=q.toLowerCase();
         final var response = productService.getBySearch(q,PageRequest.of(page, size));
         return ControllerUtils.mapFLuxToResponseEntity(response, ResponseMessage.success, HttpStatus.OK);
     }
