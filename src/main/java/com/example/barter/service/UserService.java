@@ -149,7 +149,7 @@ public class UserService {
 
         if(userEntity==null)
         {
-            throw new UserNotFoundException("user not found");
+            return Mono.error(new UserNotFoundException("user not found"));
         }
 
         return userRepository.getUserInfoFromIds
@@ -176,6 +176,7 @@ public class UserService {
     public Mono<DetailedUserResponse> getUserSetup(String id) {
 
         return userRepository.findById(id)
+                .switchIfEmpty(Mono.error(new UserNotFoundException("user not found")))
                 .flatMap(this::fillUserInfo);
     }
 
