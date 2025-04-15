@@ -14,10 +14,10 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("*")
+                        .allowedOrigins("http://localhost:3000", "https://www.cognishop.co", "https://dashboard.cognishop.co")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
-                        .allowCredentials(false)
+                        .allowCredentials(true)
                         .maxAge(3600);
             }
         };
