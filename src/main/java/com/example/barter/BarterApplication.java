@@ -23,12 +23,7 @@ todo
 2. add spring security
 3. multihthreading for the simantanoeus uplaod of 5 images
 
-routes remaining:-
--> home page
--> barter filter
--> search by title, author or subjects
--> liking and commenting
--> getting the comments
+
 
 
  */
